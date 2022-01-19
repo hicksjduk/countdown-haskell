@@ -22,9 +22,6 @@ printOut (Just e) = join " = " [show e, show (value e)]
 
 data ValidationResult = Message String | Numbers [Int]
 
-instance Show ValidationResult where
-   show (Message m) = m
-   
 valid :: ValidationResult -> Bool
 valid (Message _) = False
 valid _ = True
