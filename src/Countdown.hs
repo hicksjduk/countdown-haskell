@@ -6,13 +6,6 @@ solve :: Int -> [Int] -> Maybe Expression
 solve target [] = Nothing
 solve target xs = foldr (findBest target) Nothing (allExpressions [NumberExpression n | n <- xs])
 
-data Solution = Solution (Maybe Expression)
-
-instance Show Solution where
-   show (Solution Nothing) = "No solution found"
-   show (Solution (Just e)) = join " = " [show e, show (value e)]
-
-
 allExpressions :: [Expression] -> [Expression]
 allExpressions xs = concat [expressions es | es <- permute xs]
 

@@ -16,6 +16,12 @@ solveIt (target:numbers)  = do
     putStrLn (join " " ["Solving with target number:", show target, "and source numbers:", show numbers])
     putStrLn (show $ Solution(solve target numbers))
 
+data Solution = Solution (Maybe Expression)
+
+instance Show Solution where
+   show (Solution Nothing) = "No solution found"
+   show (Solution (Just e)) = join " = " [show e, show (value e)]
+
 data ValidationResult = Message String | Numbers [Int]
 
 instance Show ValidationResult where
