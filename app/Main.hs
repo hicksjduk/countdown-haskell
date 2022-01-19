@@ -41,7 +41,7 @@ validTarget :: Int -> Bool
 validTarget n = n >= 100 && n <= 999
 
 validNumbers :: [Int] -> Bool
-validNumbers ns = and [validNumber n ns | n <- ns]
+validNumbers ns = all (`validNumber` ns) ns
 
 validNumber :: Int -> [Int] -> Bool
 validNumber n ns
