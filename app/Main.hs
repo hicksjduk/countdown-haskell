@@ -22,10 +22,6 @@ printOut (Just e) = join " = " [show e, show (value e)]
 
 data ValidationResult = Message String | Numbers [Int]
 
-valid :: ValidationResult -> Bool
-valid (Message _) = False
-valid _ = True
-
 validateAndConvert :: RandomGen a => [String] -> a -> ValidationResult
 validateAndConvert [] _ = Message "Must specify at least one argument"
 validateAndConvert args rand
