@@ -1,36 +1,6 @@
 module Countdown where
 
 import Data.Maybe
-
-{-
-main = do
-   args <- getArgs
-   if and [all isDigit arg | arg <- args] then solveIt $ validateAndConvert args
-   else error "Must only specify numbers"
-   
-validateAndConvert :: [String] -> [Int]
-validateAndConvert [] = error "Must specify at least one number"
-validateAndConvert xs =
-   if and [all isDigit x | x <- xs] then validateRanges [read x::Int | x <- xs]
-   else error "All parameters must be numeric"
-   
-validateRanges :: [Int] -> [Int]
-validateRanges nums@(bigCount:[]) = 
-   if bigCount < 0 || bigCount > 4 then error "Number of big numbers must be in the range 0 to 4 inclusive"
-   else nums
-validateRanges nums@(target:numbers)
-   | target < 100 || target > 999 = error "Target number must be in the range 100 to 999 inclusive"
-   | sourceNumbersValid numbers = nums
-   | otherwise = nums
-   
-sourceNumbersValid :: [Int] -> Bool
-sourceNumbersValid xs = True
-   
-solveIt (target:numbers)  = do
-    putStrLn (join " " ["Solving with target number:", show target, "and source numbers:", show numbers])
-    putStrLn (show (solve target numbers))
--}
-
    
 solve :: Int -> [Int] -> Maybe Expression
 solve target [] = Nothing
