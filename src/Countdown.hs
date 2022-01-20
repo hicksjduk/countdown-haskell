@@ -76,9 +76,9 @@ parallelFold f xs = par lf $ f lf rf
          rf = parallelFold f right
 
 findBest :: Int -> Maybe Expression -> Maybe Expression -> Maybe Expression
-findBest target Nothing Nothing = Nothing
+findBest _ Nothing Nothing = Nothing
 findBest target j@(Just e) Nothing = if differenceFrom target e > 10 then Nothing else j
-findBest target Nothing j@(Just e) = if differenceFrom target e > 10 then Nothing else j
+findBest target Nothing j@(Just e) = findBest target j Nothing
 findBest target j1@(Just e1) j2@(Just e2)
    | min diff1 diff2 > 10 = Nothing
    | diff1 < diff2 = j1
