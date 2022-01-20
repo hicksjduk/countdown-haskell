@@ -1,7 +1,5 @@
 module Utils where
 
-import Data.Maybe
-   
 distinct :: Eq a => [a] -> [a]
 distinct xs = distinctBy id xs
 
