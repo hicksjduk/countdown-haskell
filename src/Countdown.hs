@@ -1,11 +1,12 @@
 module Countdown where
 
 import Utils
+import Control.Parallel
 import Data.Maybe
    
 solve :: Int -> [Int] -> Maybe Expression
 solve target [] = Nothing
-solve target xs = foldr (findBest target) Nothing (allExpressions [NumberExpression n | n <- xs])
+solve target xs = parallelFold (findBest target) (allExpressions [NumberExpression n | n <- xs])
 
 allExpressions :: [Expression] -> [Expression]
 allExpressions xs = concat [expressions es | es <- permute xs]
@@ -60,6 +61,17 @@ combinerUsing op left =
    if lv == 1 then Nothing else Just (makeExpression op left)
    where lv = value left
 
+
+parallelFold :: (Expression -> Maybe Expression -> Maybe Expression) -> [Expression] -> Maybe Expression
+parallelFold _ [] = Nothing
+parallelFold f xs = par lf (combine f lf rf)
+   where (left, right) = splitAt 1000 xs
+         lf = foldr f Nothing left
+         rf = parallelFold f right
+
+combine :: (Expression -> Maybe Expression -> Maybe Expression) -> Maybe Expression -> Maybe Expression -> Maybe Expression
+combine _ Nothing e@_ = e
+combine f (Just e1) e2 = f e1 e2
 
 findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
 findBest target e Nothing = if differenceFrom target e > 10 then Nothing else Just e
