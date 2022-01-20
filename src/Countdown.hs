@@ -23,8 +23,13 @@ distinct :: Eq a => [a] -> [a]
 distinct xs = distinctBy id xs
 
 distinctBy :: Eq b => (a -> b) -> [a] -> [a]
-distinctBy _ [] = []
-distinctBy f (x:xs) = x : distinctBy f (filter ((f x /=).f) xs)
+distinctBy keyGen xs = distinctBy' keyGen [] xs
+   where distinctBy' :: Eq b => (a -> b) -> [b] -> [a] -> [a]
+         distinctBy' _ _ [] = []
+         distinctBy' keyGen usedKeys (x:xs)
+            | key `elem` usedKeys = distinctBy' keyGen usedKeys xs
+            | otherwise = x : distinctBy' keyGen (key : usedKeys) xs
+            where key = keyGen x
 
 
 permute :: Eq a => [a] -> [[a]]
