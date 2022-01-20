@@ -1,6 +1,7 @@
 module Main where
 
 import Countdown
+import Utils
 import Data.Char
 import System.Environment
 import System.Random
@@ -51,10 +52,6 @@ validNumber n ns
    | n `mod` 25 == 0 = occurrences n ns == 1
    | otherwise = False
    
-occurrences :: Eq a => a -> [a] -> Int
-occurrences _ [] = 0
-occurrences y (x:xs) = (if y == x then 1 else 0) + occurrences y xs
-
 randomNumbers :: RandomGen a => a -> Int -> [Int]
 randomNumbers rand bigOnes = concat [take 1 (randomRs (100, 999) rand),
                                      take bigOnes (randomFrom rand bigNumbers),

@@ -1,5 +1,6 @@
 module Countdown where
 
+import Utils
 import Data.Maybe
    
 solve :: Int -> [Int] -> Maybe Expression
@@ -13,23 +14,10 @@ expressions :: [Expression] -> [Expression]
 expressions [] = []
 expressions (x:[]) = [x]
 expressions xs = concat [expressionsFrom (splitAt i xs) | i <- take (length xs - 1) [1..]]
-
-expressionsFrom :: ([Expression], [Expression]) -> [Expression]
-expressionsFrom (leftOperands, rightOperands) = concat [combinations combiners r | r <- expressions rightOperands]
-   where combiners = concatMap (combinersUsing) (expressions leftOperands)
-
-
-distinct :: Eq a => [a] -> [a]
-distinct xs = distinctBy id xs
-
-distinctBy :: Eq b => (a -> b) -> [a] -> [a]
-distinctBy keyGen xs = distinctBy' keyGen [] xs
-   where distinctBy' :: Eq b => (a -> b) -> [b] -> [a] -> [a]
-         distinctBy' _ _ [] = []
-         distinctBy' keyGen usedKeys (x:xs)
-            | key `elem` usedKeys = distinctBy' keyGen usedKeys xs
-            | otherwise = x : distinctBy' keyGen (key : usedKeys) xs
-            where key = keyGen x
+   where
+      expressionsFrom :: ([Expression], [Expression]) -> [Expression]
+      expressionsFrom (leftOperands, rightOperands) = concat [combinations combiners r | r <- expressions rightOperands]
+         where combiners = concatMap (combinersUsing) (expressions leftOperands)
 
 
 permute :: Eq a => [a] -> [[a]]
@@ -37,15 +25,10 @@ permute [] = []
 permute (x:[]) = [[x]]
 permute xs = concat [permuteAt i xs | i <- uniqueIndices]
    where uniqueIndices = distinctBy (xs!!) $ take (length xs) [0..]
-   
-permuteAt :: Eq a => Int -> [a] -> [[a]]
-permuteAt n xs = [x : suffix | suffix <- [] : permute others]
-   where x = xs!!n
-         others = allExcept n xs
-
-allExcept :: Int -> [a] -> [a]
-allExcept _ [] = []
-allExcept i (x:xs) = if i == 0 then xs else x : allExcept (i-1) xs
+         permuteAt :: Eq a => Int -> [a] -> [[a]]
+         permuteAt n xs = [x : suffix | suffix <- [] : permute others]
+            where x = xs!!n
+                  others = allExcept n xs
 
 
 combinersUsing :: Expression -> [(Expression -> Maybe Expression)]
@@ -158,8 +141,3 @@ instance Show Expression where
 parensIf :: Bool -> String -> String
 parensIf False s = s
 parensIf True s = join s ["(", ")"]
-   
-join :: String -> [String] -> String
-join _ [] = ""
-join _ (x:[]) = x
-join s (x:xs) = x ++ s ++ join s xs

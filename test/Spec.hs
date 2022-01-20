@@ -1,4 +1,5 @@
 import Countdown
+import Utils
 import Test.Hspec
 import Data.Maybe
 
@@ -54,10 +55,3 @@ testNoSolution target numbers = hspec $ do
       let solution = solve target numbers
       it "No solution found" $ do
          solution `shouldSatisfy` isNothing
-
-isSubsetOf :: Eq a => [a] -> [a] -> Bool
-isSubsetOf super sub = and [occurrences x sub <= occurrences x super | x <- distinct sub]
-
-occurrences :: Eq a => a -> [a] -> Int
-occurrences _ [] = 0
-occurrences y (x:xs) = (if x == y then 1 else 0) + occurrences y xs
