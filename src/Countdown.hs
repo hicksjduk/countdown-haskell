@@ -6,15 +6,15 @@ import Data.Maybe
    
 solve :: Int -> [Int] -> Maybe Expression
 solve target [] = Nothing
-solve target xs = parallelFold (findBest target) [Just e | e <- allExpressions [NumberExpression n | n <- xs]]
+solve target xs = parallelFold (findBest target) $ map (Just) $ allExpressions $ map (NumberExpression) xs
 
 allExpressions :: [Expression] -> [Expression]
-allExpressions xs = concat [expressions es | es <- permute xs]
+allExpressions xs = concatMap (expressions) $ permute xs
 
 expressions :: [Expression] -> [Expression]
 expressions [] = []
 expressions (x:[]) = [x]
-expressions xs = concat [expressionsFrom (splitAt i xs) | i <- take (length xs - 1) [1..]]
+expressions xs = concatMap (expressionsFrom.(`splitAt` xs)) $ take (length xs - 1) [1..]
    where
       expressionsFrom :: ([Expression], [Expression]) -> [Expression]
       expressionsFrom (leftOperands, rightOperands) = concat [combinations combiners r | r <- expressions rightOperands]
