@@ -62,11 +62,17 @@ combinerUsing op left =
    where lv = value left
 
 
-parallelFold :: (Maybe Expression -> Maybe Expression -> Maybe Expression) -> [Maybe Expression] -> Maybe Expression
-parallelFold _ [] = Nothing
+class Nillable a where
+   nil :: a
+   
+instance Nillable (Maybe a) where
+   nil = Nothing
+
+parallelFold :: Nillable a => (a -> a -> a) -> [a] -> a
+parallelFold _ [] = nil
 parallelFold f xs = par lf $ f lf rf
    where (left, right) = splitAt 1000 xs
-         lf = foldr f Nothing left
+         lf = foldr f nil left
          rf = parallelFold f right
 
 findBest :: Int -> Maybe Expression -> Maybe Expression -> Maybe Expression
