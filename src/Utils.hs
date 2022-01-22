@@ -1,5 +1,15 @@
 module Utils where
 
+import Control.Parallel
+
+foldParallel :: Int -> ([a] -> b) -> (b -> b -> b) -> [a] -> b
+foldParallel _ fold _ [] = fold []
+foldParallel chunkSize fold combine xs = par lf $ combine lf rf
+  where
+    (left, right) = splitAt chunkSize xs
+    lf = fold left
+    rf = foldParallel chunkSize fold combine right
+
 -- |
 -- Gets a list of all the distinct values in the input list. The order of the
 -- values is the same as the order of their first occurrence in the input.

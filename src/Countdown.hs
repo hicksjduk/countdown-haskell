@@ -5,8 +5,14 @@ import Data.Maybe
 import Utils
 
 solve :: Int -> [Int] -> Maybe Expression
-solve target [] = Nothing
-solve target xs = parallelFold (findBest target) $ map Just $ allExpressions $ map NumberExpression xs
+solve target xs = foldParallel chunkSize folder combiner exprs
+  where
+    chunkSize = 1000
+    folder = foldr (findBest target) Nothing
+    combiner :: Maybe Expression -> Maybe Expression -> Maybe Expression
+    combiner Nothing e = e
+    combiner (Just e1) e2 = findBest target e1 e2
+    exprs = allExpressions $ map NumberExpression xs
 
 allExpressions :: [Expression] -> [Expression]
 allExpressions xs = concatMap expressions $ permute xs
@@ -67,29 +73,13 @@ combinerUsing op left =
   where
     lv = value left
 
-class Nillable a where
-  nil :: a
-
-instance Nillable (Maybe a) where
-  nil = Nothing
-
-parallelFold :: Nillable a => (a -> a -> a) -> [a] -> a
-parallelFold _ [] = nil
-parallelFold f xs = par lf $ f lf rf
-  where
-    (left, right) = splitAt 1000 xs
-    lf = foldr f nil left
-    rf = parallelFold f right
-
-findBest :: Int -> Maybe Expression -> Maybe Expression -> Maybe Expression
-findBest _ Nothing Nothing = Nothing
-findBest target j@(Just e) Nothing = if differenceFrom target e > 10 then Nothing else j
-findBest target Nothing j@(Just e) = findBest target j Nothing
-findBest target j1@(Just e1) j2@(Just e2)
+findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
+findBest target e Nothing = if differenceFrom target e > 10 then Nothing else Just e
+findBest target e1 j2@(Just e2)
   | min diff1 diff2 > 10 = Nothing
-  | diff1 < diff2 = j1
+  | diff1 < diff2 = Just e1
   | diff1 > diff2 = j2
-  | count e1 <= count e2 = j1
+  | count e1 <= count e2 = Just e1
   | otherwise = j2
   where
     diff1 = differenceFrom target e1
