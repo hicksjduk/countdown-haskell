@@ -80,11 +80,17 @@ findBest target e1 j2@(Just e2)
   | min diff1 diff2 > 10 = Nothing
   | diff1 < diff2 = Just e1
   | diff1 > diff2 = j2
-  | count e1 <= count e2 = Just e1
+  | count1 < count2 = Just e1
+  | count1 > count2 = j2
+  | parens1 <= parens2 = Just e1
   | otherwise = j2
   where
     diff1 = differenceFrom target e1
     diff2 = differenceFrom target e2
+    count1 = count e1
+    count2 = count e2
+    parens1 = occurrences '(' $ show e1
+    parens2 = occurrences '(' $ show e2
 
 differenceFrom :: Int -> Expression -> Int
 differenceFrom target expr = abs (target - value expr)
