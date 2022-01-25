@@ -1,5 +1,6 @@
 import Countdown
 import Utils
+import Data.List
 import Test.Hspec
 import Data.Maybe
 
@@ -17,7 +18,7 @@ main = do
    
 testExact :: Int -> [Int] -> Int -> IO () 
 testExact target numbers expectedCount = hspec $ do
-   describe (join " " ["Exact match:", show target, show numbers]) $ do
+   describe (intercalate " " ["Exact match:", show target, show numbers]) $ do
       let solution = solve target numbers
       checkSolutionFound solution
       let e = fromJust solution
@@ -31,7 +32,7 @@ checkSolutionFound solution = it "Solution found" $ do
    solution `shouldSatisfy` isJust
    
 checkCount :: Int -> Expression -> SpecWith (Arg Expectation)
-checkCount expected expression = it (join " " ["Uses", show expected, "number(s)"]) $ do
+checkCount expected expression = it (intercalate " " ["Uses", show expected, "number(s)"]) $ do
    count expression `shouldBe` expected
    
 checkNumbersUsed :: [Int] -> Expression -> SpecWith (Arg Expectation)
@@ -40,18 +41,18 @@ checkNumbersUsed numbers expression = it "Only uses some or all source numbers" 
 
 testNotExact :: Int -> [Int] -> Int -> Int -> IO () 
 testNotExact target numbers expectedAnswer expectedCount = hspec $ do
-   describe (join " " ["Non-exact match:", show target, show numbers]) $ do
+   describe (intercalate " " ["Non-exact match:", show target, show numbers]) $ do
       let solution = solve target numbers
       checkSolutionFound solution
       let e = fromJust solution
-      it (join " " ["Value of answer is", show expectedAnswer]) $ do
+      it (intercalate " " ["Value of answer is", show expectedAnswer]) $ do
          value e `shouldBe` expectedAnswer
       checkCount expectedCount e
       checkNumbersUsed numbers e
 
 testNoSolution :: Int -> [Int] -> IO () 
 testNoSolution target numbers = hspec $ do
-   describe (join " " ["No solution:", show target, show numbers]) $ do
+   describe (intercalate " " ["No solution:", show target, show numbers]) $ do
       let solution = solve target numbers
       it "No solution found" $ do
          solution `shouldSatisfy` isNothing

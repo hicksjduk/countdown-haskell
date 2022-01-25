@@ -2,6 +2,7 @@ module Countdown where
 
 import Control.Parallel
 import Data.Maybe
+import Data.List
 import Utils
 
 solve :: Int -> [Int] -> Maybe Expression
@@ -141,7 +142,7 @@ instance Prioritizable Expression where
 instance Show Expression where
   show (NumberExpression n) = show n
   show (ArithmeticExpression left op right) =
-    join
+    intercalate
       " "
       [ parensIf (priority left < priority op) (show left),
         symbol op,
@@ -152,4 +153,4 @@ instance Show Expression where
 
 parensIf :: Bool -> String -> String
 parensIf False s = s
-parensIf True s = join s ["(", ")"]
+parensIf True s = intercalate s ["(", ")"]

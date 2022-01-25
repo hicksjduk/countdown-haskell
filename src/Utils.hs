@@ -47,16 +47,6 @@ allExcept i lst@(x : xs)
   | otherwise = x : allExcept (i -1) xs
 
 -- |
--- Gets a string containing the elements of the specified list, interspersed
--- with the specified string.
--- Parameter 1 is the string to be interspersed.
--- Parameter 2 is the list.
-join :: String -> [String] -> String
-join _ [] = ""
-join _ [x] = x
-join s (x : xs) = x ++ s ++ join s xs
-
--- |
 -- Gets the number of times the specified value occurs in the specified list.
 -- Parameter 1 is the value.
 -- Parameter 2 is the list.

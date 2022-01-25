@@ -4,6 +4,7 @@ module Main where
 
 import Countdown
 import Data.Char
+import Data.List
 import System.Environment
 import System.Random
 import Utils
@@ -25,9 +26,9 @@ normalise nums _ = nums
 
 solveIt :: [Int] -> IO ()
 solveIt (target : numbers) = do
-  putStrLn (join " " ["Solving with target number:", show target, "and source numbers:", show numbers])
+  putStrLn (intercalate " " ["Solving with target number:", show target, "and source numbers:", show numbers])
   case solve target numbers of
-    (Just e) -> putStrLn $ join " = " [show e, show (value e)]
+    (Just e) -> putStrLn $ intercalate " = " [show e, show (value e)]
     _ -> putStrLn "No solution found"
 
 validateArgs :: [String] -> Maybe String
