@@ -148,15 +148,12 @@ instance Prioritizable Expression where
 instance Show Expression where
   show (NumberExpression n) = show n
   show (ArithmeticExpression left op right) =
-    intercalate
-      " "
-      [ parensIf (priority left < priority op) (show left),
-        symbol op,
-        parensIf
-          (priority op > priority right || priority op == priority right && not (commutative op))
-          (show right)
-      ]
+    unwords [parensLeft $ show left, symbol op, parensRight $ show right]
+    where
+      parensLeft = parensIf (priority left < priority op)
+      parensRight = parensIf (priority op > priority right ||
+        priority op == priority right && not (commutative op))
 
 parensIf :: Bool -> String -> String
 parensIf False s = s
-parensIf True s = intercalate s ["(", ")"]
+parensIf True s = unwords ["(", s, ")"]

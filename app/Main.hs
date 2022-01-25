@@ -26,9 +26,9 @@ normalise nums _ = nums
 
 solveIt :: [Int] -> IO ()
 solveIt (target : numbers) = do
-  putStrLn (intercalate " " ["Solving with target number:", show target, "and source numbers:", show numbers])
+  putStrLn $ unwords ["Solving with target number:", show target, "and source numbers:", show numbers]
   case solve target numbers of
-    (Just e) -> putStrLn $ intercalate " = " [show e, show (value e)]
+    (Just e) -> putStrLn $ unwords [show e, "=", show (value e)]
     _ -> putStrLn "No solution found"
 
 validateArgs :: [String] -> Maybe String
