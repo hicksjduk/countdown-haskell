@@ -44,7 +44,7 @@ combinersUsing :: Expression -> [Expression -> Maybe Expression]
 combinersUsing left = [fromJust c | c <- filter isJust [combinerUsing op left | op <- [Add ..]]]
 
 combinations :: [Expression -> Maybe Expression] -> Expression -> [Expression]
-combinations xs right = catMaybes ([c right | c <- xs])
+combinations xs right = catMaybes [c right | c <- xs]
 
 makeExpression :: Operation -> Expression -> Expression -> Maybe Expression
 makeExpression op@Add left right = Just (ArithmeticExpression left op right)
