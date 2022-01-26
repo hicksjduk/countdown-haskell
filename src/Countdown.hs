@@ -4,7 +4,6 @@ import Control.Parallel
 import Data.Maybe
 import Data.List
 import Utils
-import Control.Arrow (ArrowChoice(left))
 
 solve :: Int -> [Int] -> Maybe Expression
 solve target xs = foldParallel chunkSize folder combiner exprs
@@ -42,24 +41,30 @@ permute xs = concat [permuteAt i xs | i <- uniqueIndices]
         others = allExcept n xs
 
 combinersUsing :: Expression -> [Expression -> Maybe Expression]
-combinersUsing left = [fromJust c | c <- filter isJust [combinerUsing op left | op <- [Add ..]]]
+combinersUsing left = catMaybes [combinerUsing op left | op <- [Add ..]]
 
 combinations :: [Expression -> Maybe Expression] -> Expression -> [Expression]
 combinations xs right = catMaybes [c right | c <- xs]
 
 makeExpression :: Operation -> Expression -> Expression -> Maybe Expression
 makeExpression op@Add left right = Just (ArithmeticExpression left op right)
-makeExpression op@Subtract left right =
-  if rv >= lv || rv * 2 == lv then Nothing else Just (ArithmeticExpression left op right)
+makeExpression op@Subtract left right
+  | rv >= lv = Nothing
+  | rv * 2 == lv = Nothing
+  | otherwise = Just (ArithmeticExpression left op right)
   where
     lv = value left
     rv = value right
-makeExpression op@Multiply left right =
-  if rv == 1 then Nothing else Just (ArithmeticExpression left op right)
+makeExpression op@Multiply left right
+  | rv == 1 = Nothing 
+  | otherwise = Just (ArithmeticExpression left op right)
   where
     rv = value right
-makeExpression op@Divide left right =
-  if rv == 1 || lv `mod` rv /= 0 || rv ^ 2 == lv then Nothing else Just (ArithmeticExpression left op right)
+makeExpression op@Divide left right
+  | rv == 1 = Nothing 
+  | lv `mod` rv /= 0 = Nothing
+  | rv ^ 2 == lv = Nothing 
+  | otherwise = Just (ArithmeticExpression left op right)
   where
     lv = value left
     rv = value right
