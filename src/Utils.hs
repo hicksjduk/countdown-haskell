@@ -2,6 +2,15 @@ module Utils where
 
 import Control.Parallel
 
+-- |
+-- Performs the specified fold on the supplied list, using parallel processing
+-- for performance. The list is split into chunks, each of which is folded
+-- separately and in parallel, and the results are combined to produce an
+-- overall result.
+-- Parameter 1 is the chunk size to use.
+-- Parameter 2 is the fold.
+-- Parameter 3 is a function that combines the results of folding two chunks.
+-- Parameter 4 is the list.
 foldParallel :: Int -> ([a] -> b) -> (b -> b -> b) -> [a] -> b
 foldParallel _ fold _ [] = fold []
 foldParallel chunkSize fold combine xs = par lf $ combine lf rf
@@ -53,6 +62,10 @@ allExcept i lst@(x : xs)
 occurrences :: Eq a => a -> [a] -> Int
 occurrences x = countIf (==x)
 
+-- |
+-- Gets the number of items in the specified list that satisfy the supplied predicate.
+-- Parameter 1 is the predicate.
+-- Parameter 2 is the list.
 countIf :: (a -> Bool) -> [a] -> Int
 countIf predicate xs = length $ filter predicate xs
 

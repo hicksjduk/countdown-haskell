@@ -41,7 +41,7 @@ permute xs = concat [permuteAt i xs | i <- uniqueIndices]
         others = allExcept n xs
 
 combinersUsing :: Expression -> [Expression -> Maybe Expression]
-combinersUsing left = catMaybes [combinerUsing op left | op <- [Add ..]]
+combinersUsing left = mapMaybe (`combinerUsing` left) [Add ..]
 
 combinations :: [Expression -> Maybe Expression] -> Expression -> [Expression]
 combinations xs right = catMaybes [c right | c <- xs]
