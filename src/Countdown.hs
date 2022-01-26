@@ -1,8 +1,7 @@
 module Countdown where
 
-import Control.Parallel
-import Data.Maybe
 import Data.List
+import Data.Maybe
 import Utils
 
 solve :: Int -> [Int] -> Maybe Expression
@@ -44,7 +43,7 @@ combinersUsing :: Expression -> [Expression -> Maybe Expression]
 combinersUsing left = mapMaybe (`combinerUsing` left) [Add ..]
 
 combinations :: [Expression -> Maybe Expression] -> Expression -> [Expression]
-combinations xs right = catMaybes [c right | c <- xs]
+combinations xs right = mapMaybe ($ right) xs
 
 makeExpression :: Operation -> Expression -> Expression -> Maybe Expression
 makeExpression op@Add left right = Just (ArithmeticExpression left op right)
@@ -56,14 +55,14 @@ makeExpression op@Subtract left right
     lv = value left
     rv = value right
 makeExpression op@Multiply left right
-  | rv == 1 = Nothing 
+  | rv == 1 = Nothing
   | otherwise = Just (ArithmeticExpression left op right)
   where
     rv = value right
 makeExpression op@Divide left right
-  | rv == 1 = Nothing 
+  | rv == 1 = Nothing
   | lv `mod` rv /= 0 = Nothing
-  | rv ^ 2 == lv = Nothing 
+  | rv ^ 2 == lv = Nothing
   | otherwise = Just (ArithmeticExpression left op right)
   where
     lv = value left
@@ -147,7 +146,7 @@ numbersUsed (ArithmeticExpression left _ right) = numbersUsed left ++ numbersUse
 parenCount :: Expression -> Int
 parenCount (NumberExpression _) = 0
 parenCount e@(ArithmeticExpression left _ right) =
-  sum [occurrences True [leftParens e, rightParens e], parenCount left, parenCount right]
+  sum [countIf ($e) [leftParens, rightParens], parenCount left, parenCount right]
 
 instance Eq Expression where
   a == b = value a == value b
@@ -176,7 +175,7 @@ rightParens (NumberExpression _) = False
 rightParens (ArithmeticExpression _ op right)
   | rPriority > oPriority = False
   | rPriority < oPriority = True
-  | otherwise = (not.commutative) op
+  | otherwise = (not . commutative) op
   where
     rPriority = priority right
     oPriority = priority op
