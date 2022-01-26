@@ -4,6 +4,7 @@ import Control.Parallel
 import Data.Maybe
 import Data.List
 import Utils
+import Control.Arrow (ArrowChoice(left))
 
 solve :: Int -> [Int] -> Maybe Expression
 solve target xs = foldParallel chunkSize folder combiner exprs
@@ -89,8 +90,8 @@ findBest target e1 j2@(Just e2)
     diff2 = differenceFrom target e2
     count1 = count e1
     count2 = count e2
-    parens1 = occurrences '(' $ show e1
-    parens2 = occurrences '(' $ show e2
+    parens1 = parenCount e1
+    parens2 = parenCount e2
 
 differenceFrom :: Int -> Expression -> Int
 differenceFrom target expr = abs (target - value expr)
@@ -138,6 +139,11 @@ numbersUsed :: Expression -> [Int]
 numbersUsed (NumberExpression n) = [n]
 numbersUsed (ArithmeticExpression left _ right) = numbersUsed left ++ numbersUsed right
 
+parenCount :: Expression -> Int
+parenCount (NumberExpression _) = 0
+parenCount e@(ArithmeticExpression left _ right) =
+  sum [occurrences True [leftParens e, rightParens e], parenCount left, parenCount right]
+
 instance Eq Expression where
   a == b = value a == value b
 
@@ -147,13 +153,29 @@ instance Prioritizable Expression where
 
 instance Show Expression where
   show (NumberExpression n) = show n
-  show (ArithmeticExpression left op right) =
+  show e@(ArithmeticExpression left op right) =
     unwords [parensLeft $ show left, symbol op, parensRight $ show right]
     where
-      parensLeft = parensIf (priority left < priority op)
-      parensRight = parensIf (priority op > priority right ||
-        priority op == priority right && not (commutative op))
+      parensLeft = parensIf $ leftParens e
+      parensRight = parensIf $ rightParens e
+
+leftParens :: Expression -> Bool
+leftParens (NumberExpression _) = False
+leftParens (ArithmeticExpression left op _) = lPriority < oPriority
+  where
+    lPriority = priority left
+    oPriority = priority op
+
+rightParens :: Expression -> Bool
+rightParens (NumberExpression _) = False
+rightParens (ArithmeticExpression _ op right)
+  | rPriority > oPriority = False
+  | rPriority < oPriority = True
+  | otherwise = (not.commutative) op
+  where
+    rPriority = priority right
+    oPriority = priority op
 
 parensIf :: Bool -> String -> String
 parensIf False s = s
-parensIf True s = unwords ["(", s, ")"]
+parensIf True s = intercalate s ["(", ")"]

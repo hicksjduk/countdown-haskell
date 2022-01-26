@@ -51,8 +51,10 @@ allExcept i lst@(x : xs)
 -- Parameter 1 is the value.
 -- Parameter 2 is the list.
 occurrences :: Eq a => a -> [a] -> Int
-occurrences _ [] = 0
-occurrences y (x : xs) = (if y == x then 1 else 0) + occurrences y xs
+occurrences x = countIf (==x)
+
+countIf :: (a -> Bool) -> [a] -> Int
+countIf predicate xs = length $ filter predicate xs
 
 -- |
 -- Gets whether the second list is a subset of the first one, which is the case if every
