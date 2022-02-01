@@ -24,7 +24,8 @@ expressions [x] = [x]
 expressions xs = concatMap (expressionsFrom . (`splitAt` xs)) $ take (length xs - 1) [1 ..]
   where
     expressionsFrom :: ([Expression], [Expression]) -> [Expression]
-    expressionsFrom (leftOperands, rightOperands) = concat [combinations combiners r | r <- expressions rightOperands]
+    expressionsFrom (leftOperands, rightOperands) = 
+      concatMap (combinations combiners) $ expressions rightOperands
       where
         combiners = concatMap combinersUsing (expressions leftOperands)
 
