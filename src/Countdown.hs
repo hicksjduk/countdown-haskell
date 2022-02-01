@@ -5,14 +5,15 @@ import Data.Maybe
 import Utils
 
 solve :: Int -> [Int] -> Maybe Expression
-solve target xs = foldParallel chunkSize folder combiner exprs
+solve target xs = foldParallel chunkSize folder combiner filteredExprs
   where
-    chunkSize = 1000
+    chunkSize = 100
     folder = foldr (findBest target) Nothing
     combiner :: Maybe Expression -> Maybe Expression -> Maybe Expression
     combiner Nothing e = e
     combiner (Just e1) e2 = findBest target e1 e2
     exprs = allExpressions $ map NumberExpression xs
+    filteredExprs = filter ((<= 10) . differenceFrom target) exprs
 
 allExpressions :: [Expression] -> [Expression]
 allExpressions xs = concatMap expressions $ permute xs
@@ -80,9 +81,8 @@ combinerUsing op left =
     lv = value left
 
 findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
-findBest target e Nothing = if differenceFrom target e > 10 then Nothing else Just e
+findBest target e Nothing = Just e
 findBest target e1 j2@(Just e2)
-  | min diff1 diff2 > 10 = Nothing
   | diff1 < diff2 = Just e1
   | diff1 > diff2 = j2
   | count1 < count2 = Just e1
