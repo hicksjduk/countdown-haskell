@@ -24,7 +24,7 @@ expressions [x] = [x]
 expressions xs = concatMap (expressionsFrom . (`splitAt` xs)) $ take (length xs - 1) [1 ..]
   where
     expressionsFrom :: ([Expression], [Expression]) -> [Expression]
-    expressionsFrom (leftOperands, rightOperands) = 
+    expressionsFrom (leftOperands, rightOperands) =
       concatMap (combinations combiners) $ expressions rightOperands
       where
         combiners = concatMap combinersUsing (expressions leftOperands)
@@ -83,10 +83,7 @@ combinerUsing op left =
 
 findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
 findBest target e1 Nothing = Just e1
-findBest target e1 (Just e2) = 
-  case better of
-    [] -> Just e1
-    (e:es) -> e
+findBest target e1 (Just e2) = if null better then Just e1 else head better
   where
     getters = [differenceFrom target, count, parenCount]
     better = filter isJust $ map (\g -> lesserBy g e1 e2) getters
