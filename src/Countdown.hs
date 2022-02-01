@@ -10,8 +10,8 @@ solve target xs = foldParallel chunkSize folder combiner filteredExprs
     chunkSize = 100
     folder = foldr (findBest target) Nothing
     combiner :: Maybe Expression -> Maybe Expression -> Maybe Expression
-    combiner Nothing e = e
-    combiner (Just e1) e2 = findBest target e1 e2
+    combiner Nothing j2 = j2
+    combiner (Just e1) j2 = findBest target e1 j2
     exprs = allExpressions $ map NumberExpression xs
     filteredExprs = filter ((<= 10) . differenceFrom target) exprs
 
@@ -82,21 +82,23 @@ combinerUsing op left =
     lv = value left
 
 findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
-findBest target e Nothing = Just e
-findBest target e1 j2@(Just e2)
-  | diff1 < diff2 = Just e1
-  | diff1 > diff2 = j2
-  | count1 < count2 = Just e1
-  | count1 > count2 = j2
-  | parens1 <= parens2 = Just e1
-  | otherwise = j2
+findBest target e1 Nothing = Just e1
+findBest target e1 (Just e2) = 
+  case better of
+    [] -> Just e1
+    (e:es) -> e
   where
-    diff1 = differenceFrom target e1
-    diff2 = differenceFrom target e2
-    count1 = count e1
-    count2 = count e2
-    parens1 = parenCount e1
-    parens2 = parenCount e2
+    getters = [differenceFrom target, count, parenCount]
+    better = filter isJust $ map (\g -> lesserBy g e1 e2) getters
+
+lesserBy :: Ord b => (a -> b) -> a -> a -> Maybe a
+lesserBy f x y
+  | fx < fy = Just x
+  | fx > fy = Just y
+  | otherwise = Nothing
+  where
+    fx = f x
+    fy = f y
 
 differenceFrom :: Int -> Expression -> Int
 differenceFrom target expr = abs (target - value expr)
