@@ -90,9 +90,8 @@ findBest target e1 (Just e2) = if null better then Just e1 else head better
 
 lesserBy :: Ord b => (a -> b) -> a -> a -> Maybe a
 lesserBy f x y
-  | fx < fy = Just x
-  | fx > fy = Just y
-  | otherwise = Nothing
+  | fx == fy = Nothing
+  | otherwise = Just $ if fx < fy then x else y
   where
     fx = f x
     fy = f y
