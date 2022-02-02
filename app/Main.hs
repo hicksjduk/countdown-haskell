@@ -72,5 +72,7 @@ randomNumbers rand bigOnes =
     smallNumbers = concat [[n, n] | n <- [1 .. 10]]
 
 randomFrom :: RandomGen a => a -> [Int] -> [Int]
-randomFrom rand [] = []
-randomFrom rand xs = take (length xs) [xs !! i | i <- distinct (randomRs (0, length xs - 1) rand)]
+randomFrom _ [] = []
+randomFrom rand xs = take size [xs !! i | i <- distinct $ randomRs (0, size - 1) rand]
+  where
+    size = length xs
