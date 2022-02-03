@@ -34,9 +34,9 @@ numericToNumbers _ nums@(target : numbers)
 solveIt :: [Int] -> IO ()
 solveIt (target : numbers) = do
   putStrLn $ unwords ["Solving with target number:", show target, "and source numbers:", show numbers]
-  case solve target numbers of
-    Nothing -> putStrLn "No solution found"
-    (Just e) -> putStrLn $ unwords [show e, "=", show (value e)]
+  putStrLn $ case solve target numbers of
+    Nothing -> "No solution found"
+    (Just e) -> unwords [show e, "=", show (value e)]
 
 validTarget :: Int -> Bool
 validTarget n = n >= 100 && n <= 999
