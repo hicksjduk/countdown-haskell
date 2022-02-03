@@ -35,7 +35,7 @@ solveIt :: [Int] -> IO ()
 solveIt (target : numbers) = do
   putStrLn $ unwords ["Solving with target number:", show target, "and source numbers:", show numbers]
   putStrLn $ maybe "No solution found" 
-    (\e -> unwords [show e, "=", show (value e)]) 
+    (\e -> unwords [show e, "=", show $ value e]) 
     $ solve target numbers
 
 validTarget :: Int -> Bool
