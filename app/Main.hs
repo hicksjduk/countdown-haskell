@@ -20,11 +20,11 @@ argsToNumeric :: [String] -> Either String [Int]
 argsToNumeric [] = Left "Must specify at least one argument"
 argsToNumeric xs
   | all (all isDigit) xs = Right [read x::Int | x <- xs]
-  | otherwise = Left "All arguments must be numeric"
+  | otherwise = Left "All arguments must be non-negative integers"
 
 numericToNumbers :: RandomGen a => a -> [Int] -> Either String [Int]
 numericToNumbers rand [x]
-  | x < 0 || x > 4 = Left "Number of big numbers must be in the range 0 to 4"
+  | x > 4 = Left "Number of big numbers must be in the range 0 to 4"
   | otherwise = Right $ randomNumbers rand x
 numericToNumbers _ nums@(target : numbers)
   | (not . validTarget) target = Left "Target must be in the range 100 to 999 inclusive"
