@@ -19,7 +19,7 @@ main = do
 argsToNumeric :: [String] -> Either String [Int]
 argsToNumeric [] = Left "Must specify at least one argument"
 argsToNumeric xs
-  | all (all isDigit) xs = Right [read x::Int | x <- xs]
+  | all (all isDigit) xs = Right [read x :: Int | x <- xs]
   | otherwise = Left "All arguments must be non-negative integers"
 
 numericToNumbers :: RandomGen a => a -> [Int] -> Either String [Int]
@@ -34,9 +34,11 @@ numericToNumbers _ nums@(target : numbers)
 solveIt :: [Int] -> IO ()
 solveIt (target : numbers) = do
   putStrLn $ unwords ["Solving with target number:", show target, "and source numbers:", show numbers]
-  putStrLn $ maybe "No solution found" 
-    (\e -> unwords [show e, "=", show $ value e]) 
-    $ solve target numbers
+  putStrLn $
+    maybe
+      "No solution found"
+      (\e -> unwords [show e, "=", show $ value e])
+      $ solve target numbers
 
 validTarget :: Int -> Bool
 validTarget n = n >= 100 && n <= 999
@@ -52,16 +54,15 @@ validNumber n ns
   | n `mod` 25 /= 0 = False
   | otherwise = occurrences n ns == 1
 
+bigNumbers = [n * 25 | n <- [1 .. 4]]
+smallNumbers = concat [[n, n] | n <- [1 .. 10]]
+
 randomNumbers :: RandomGen a => a -> Int -> [Int]
-randomNumbers rand bigOnes =
-  concat
-    [ take 1 (randomRs (100, 999) rand),
-      take bigOnes (randomFrom rand bigNumbers),
-      take (6 - bigOnes) (randomFrom rand smallNumbers)
-    ]
+randomNumbers rand bigOnes = concat [target, big, small]
   where
-    bigNumbers = [n * 25 | n <- [1 .. 4]]
-    smallNumbers = concat [[n, n] | n <- [1 .. 10]]
+    target = take 1 $ randomRs (100, 999) rand
+    big = take bigOnes $ randomFrom rand bigNumbers
+    small = take (6 - bigOnes) $ randomFrom rand smallNumbers
 
 randomFrom :: RandomGen a => a -> [Int] -> [Int]
 randomFrom _ [] = []
