@@ -5,6 +5,7 @@ module Main where
 import Countdown
 import Data.Char
 import Data.List
+import Data.Bifunctor
 import System.Environment
 import System.Random
 import Utils
@@ -58,14 +59,18 @@ bigNumbers = [n * 25 | n <- [1 .. 4]]
 smallNumbers = concat [[n, n] | n <- [1 .. 10]]
 
 randomNumbers :: RandomGen a => a -> Int -> [Int]
-randomNumbers rand bigOnes = concat [target, big, small]
+randomNumbers rand bigOnes = target : take bigOnes big ++ take (6-bigOnes) small
   where
-    target = take 1 $ randomRs (100, 999) rand
-    big = take bigOnes $ randomFrom rand bigNumbers
-    small = take (6 - bigOnes) $ randomFrom rand smallNumbers
+    (target, r1) = randomR (100, 999) rand
+    (big, r2) = randomFrom r1 bigNumbers
+    (small, _) = randomFrom r2 smallNumbers
 
-randomFrom :: RandomGen a => a -> [Int] -> [Int]
-randomFrom _ [] = []
-randomFrom rand xs = take size [xs !! i | i <- distinct $ randomRs (0, size - 1) rand]
-  where
-    size = length xs
+randomFrom :: RandomGen a => a -> [b] -> ([b], a)
+randomFrom rand [] = ([], rand)
+randomFrom rand xs@[x] = (xs, rand)
+randomFrom rand xs = (head right : res, r2)
+   where
+     indexRange = (0, length xs - 1)
+     (i, r1) = randomR indexRange rand
+     (left, right) = splitAt i xs
+     (res, r2) = randomFrom r1 (left ++ tail right)
