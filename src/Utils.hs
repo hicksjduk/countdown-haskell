@@ -70,11 +70,11 @@ countIf :: (a -> Bool) -> [a] -> Int
 countIf predicate xs = length $ filter predicate xs
 
 -- |
--- Gets whether the second list is a subset of the first one, which is the case if every
--- distinct value in the second list occurs not more times in that list than in the first
--- one. Note that: (a) the order of elements is irrelevant; (b) if the two lists contain the
+-- Gets whether the first list is a subset of the second one. List A is a subset of list B 
+-- if every distinct value in A occurs not more times in A than in B.
+-- Note that: (a) the order of elements is irrelevant; (b) if the two lists contain the
 -- same values they are both subsets of each other.
--- Parameter 1 is the candidate superset.
--- Parameter 2 is the candidate subset.
+-- Parameter 1 is the candidate subset.
+-- Parameter 2 is the candidate superset.
 isSubsetOf :: Eq a => [a] -> [a] -> Bool
-isSubsetOf super sub = and [occurrences x sub <= occurrences x super | x <- distinct sub]
+a `isSubsetOf` b = and [occurrences x a <= occurrences x b | x <- distinct a]

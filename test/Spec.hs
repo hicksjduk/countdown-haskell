@@ -37,7 +37,7 @@ checkCount expected expression = it (unwords ["Uses", show expected, "number(s)"
    
 checkNumbersUsed :: [Int] -> Expression -> SpecWith (Arg Expectation)
 checkNumbersUsed numbers expression = it "Only uses some or all source numbers" $ do
-   numbersUsed expression `shouldSatisfy` isSubsetOf numbers
+   numbersUsed expression `shouldSatisfy` (`isSubsetOf` numbers)
 
 testNotExact :: Int -> [Int] -> Int -> Int -> IO () 
 testNotExact target numbers expectedAnswer expectedCount = hspec $ do
