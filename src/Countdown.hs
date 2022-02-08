@@ -20,8 +20,8 @@ allExpressions xs = concatMap expressions $ permute xs
 
 expressions :: [Expression] -> [Expression]
 expressions [] = []
-expressions [x] = [x]
-expressions xs = concatMap (expressionsFrom . (`splitAt` xs)) $ take (length xs - 1) [1 ..]
+expressions xs@[_] = xs
+expressions xs = concatMap (expressionsFrom . (`splitAt` xs)) [1 .. length xs - 1]
   where
     expressionsFrom :: ([Expression], [Expression]) -> [Expression]
     expressionsFrom (leftOperands, rightOperands) =
@@ -31,7 +31,7 @@ expressions xs = concatMap (expressionsFrom . (`splitAt` xs)) $ take (length xs 
 
 permute :: Eq a => [a] -> [[a]]
 permute [] = []
-permute [x] = [[x]]
+permute xs@[_] = [xs]
 permute xs = concat [permuteAt i xs | i <- uniqueIndices]
   where
     uniqueIndices = distinctBy (xs !!) $ take (length xs) [0 ..]
