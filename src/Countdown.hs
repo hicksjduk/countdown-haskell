@@ -82,7 +82,7 @@ combinerUsing op left =
     lv = value left
 
 findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
-findBest target e1 Nothing = Just e1
+findBest _ e1 Nothing = Just e1
 findBest target e1 (Just e2) = if null better then Just e1 else head better
   where
     getters = [differenceFrom target, count, parenCount]
