@@ -53,7 +53,7 @@ allExcept _ [] = []
 allExcept i lst@(x : xs)
   | i < 0 = lst
   | i == 0 = xs
-  | otherwise = x : allExcept (i -1) xs
+  | otherwise = x : allExcept (i - 1) xs
 
 -- |
 -- Gets the number of times the specified value occurs in the specified list.
