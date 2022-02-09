@@ -20,7 +20,7 @@ main = do
 argsToNumeric :: [String] -> Either String [Int]
 argsToNumeric [] = Left "Must specify at least one argument"
 argsToNumeric xs
-  | all (all isDigit) xs = Right [read x :: Int | x <- xs]
+  | all (all isDigit) xs = Right $ map (read::String->Int) xs
   | otherwise = Left "All arguments must be non-negative integers"
 
 numericToNumbers :: RandomGen a => a -> [Int] -> Either String [Int]
@@ -55,8 +55,8 @@ validNumber n ns
   | n `mod` 25 /= 0 = False
   | otherwise = occurrences n ns == 1
 
-bigNumbers = [n * 25 | n <- [1 .. 4]]
-smallNumbers = concat [[n, n] | n <- [1 .. 10]]
+bigNumbers = map (*25) [1 .. 4]
+smallNumbers = concatMap (replicate 2) [1..10]
 
 randomNumbers :: RandomGen a => a -> Int -> [Int]
 randomNumbers rand bigOnes = target : take bigOnes big ++ take (6-bigOnes) small
