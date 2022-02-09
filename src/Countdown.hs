@@ -32,11 +32,11 @@ expressions xs = concatMap (expressionsFrom . (`splitAt` xs)) [1 .. length xs - 
 permute :: Eq a => [a] -> [[a]]
 permute [] = []
 permute xs@[_] = [xs]
-permute xs = concat [permuteAt i xs | i <- uniqueIndices]
+permute xs = concatMap (`permuteAt` xs) uniqueIndices
   where
     uniqueIndices = distinctBy (xs !!) $ take (length xs) [0 ..]
     permuteAt :: Eq a => Int -> [a] -> [[a]]
-    permuteAt n xs = [x : suffix | suffix <- [] : permute others]
+    permuteAt n xs = map (x :) $ [] : permute others
       where
         x = xs !! n
         others = allExcept n xs
