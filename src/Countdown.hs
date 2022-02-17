@@ -34,7 +34,7 @@ permute [] = []
 permute xs@[_] = [xs]
 permute xs = concatMap (`permuteAt` xs) uniqueIndices
   where
-    uniqueIndices = distinctBy (xs !!) $ take (length xs) [0 ..]
+    uniqueIndices = nubBy (\a b -> xs !! a == xs !! b) $ take (length xs) [0 ..]
     permuteAt :: Eq a => Int -> [a] -> [[a]]
     permuteAt n xs = map (x :) $ [] : permute others
       where

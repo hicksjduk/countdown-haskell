@@ -45,7 +45,7 @@ validTarget :: Int -> Bool
 validTarget n = n >= 100 && n <= 999
 
 validNumbers :: [Int] -> Bool
-validNumbers ns = all (`validNumber` ns) $ distinct ns
+validNumbers ns = all (`validNumber` ns) $ nub ns
 
 validNumber :: Int -> [Int] -> Bool
 validNumber n ns

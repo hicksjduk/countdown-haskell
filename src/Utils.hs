@@ -1,6 +1,7 @@
 module Utils where
 
 import Control.Parallel
+import Data.List
 
 -- |
 -- Performs the specified fold on the supplied list, using parallel processing
@@ -18,30 +19,6 @@ foldParallel chunkSize fold combine xs = par lf $ combine lf rf
     (left, right) = splitAt chunkSize xs
     lf = fold left
     rf = foldParallel chunkSize fold combine right
-
--- |
--- Gets a list of all the distinct values in the input list. The order of the
--- values is the same as the order of their first occurrence in the input.
--- Parameter 1 is the list.
-distinct :: Eq a => [a] -> [a]
-distinct = distinctBy id
-
--- |
--- Gets a list of the values in the input list which have distinct keys (as
--- returned by the key generator function). Only the first value for each key
--- is included, in the same order as they occur in the input.
--- Parameter 1 is the key generator function.
--- Parameter 2 is the list.
-distinctBy :: Eq b => (a -> b) -> [a] -> [a]
-distinctBy keyGen xs = distinctBy' keyGen [] xs
-  where
-    distinctBy' :: Eq b => (a -> b) -> [b] -> [a] -> [a]
-    distinctBy' _ _ [] = []
-    distinctBy' keyGen usedKeys (x : xs)
-      | key `elem` usedKeys = distinctBy' keyGen usedKeys xs
-      | otherwise = x : distinctBy' keyGen (key : usedKeys) xs
-      where
-        key = keyGen x
 
 -- |
 -- Gets a copy of the input list, excluding the value at the specified index.
@@ -76,5 +53,5 @@ countIf predicate xs = length $ filter predicate xs
 -- same values they are both subsets of each other.
 -- Parameter 1 is the candidate subset.
 -- Parameter 2 is the candidate superset.
-isSubsetOf :: Eq a => [a] -> [a] -> Bool
-a `isSubsetOf` b = and [occurrences x a <= occurrences x b | x <- distinct a]
+isSubsetOf :: Ord a => [a] -> [a] -> Bool
+a `isSubsetOf` b = sort a `isSubsequenceOf` sort b
