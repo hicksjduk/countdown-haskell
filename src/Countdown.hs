@@ -18,17 +18,6 @@ solve target xs = foldParallel chunkSize folder combiner filteredExprs
 allExpressions :: [Expression] -> [Expression]
 allExpressions xs = concatMap expressions $ permute xs
 
-expressions :: [Expression] -> [Expression]
-expressions [] = []
-expressions xs@[_] = xs
-expressions xs = concatMap (expressionsFrom . (`splitAt` xs)) [1 .. length xs - 1]
-  where
-    expressionsFrom :: ([Expression], [Expression]) -> [Expression]
-    expressionsFrom (leftOperands, rightOperands) =
-      concatMap (combinations combiners) $ expressions rightOperands
-      where
-        combiners = concatMap combinersUsing (expressions leftOperands)
-
 permute :: Eq a => [a] -> [[a]]
 permute [] = []
 permute xs@[_] = [xs]
@@ -41,11 +30,33 @@ permute xs = concatMap (`permuteAt` xs) uniqueIndices
         x = xs !! n
         others = allExcept n xs
 
-combinersUsing :: Expression -> [Expression -> Maybe Expression]
-combinersUsing left = mapMaybe (`combinerUsing` left) [Add ..]
+expressions :: [Expression] -> [Expression]
+expressions [] = []
+expressions xs@[_] = xs
+expressions xs = concatMap (expressionsFrom . (`splitAt` xs)) [1 .. length xs - 1]
+  where
+    expressionsFrom :: ([Expression], [Expression]) -> [Expression]
+    expressionsFrom (leftOperands, rightOperands) =
+      concatMap (combinations combiners) $ expressions rightOperands
+      where
+        combiners = concatMap combinersUsing $ expressions leftOperands
 
 combinations :: [Expression -> Maybe Expression] -> Expression -> [Expression]
 combinations xs right = mapMaybe ($ right) xs
+
+combinersUsing :: Expression -> [Expression -> Maybe Expression]
+combinersUsing left = mapMaybe (`combinerUsing` left) [Add ..]
+
+combinerUsing :: Operation -> Expression -> Maybe (Expression -> Maybe Expression)
+combinerUsing op@Add left = Just $ makeExpression op left
+combinerUsing op@Subtract left =
+  if lv < 3 then Nothing else Just $ makeExpression op left
+  where
+    lv = value left
+combinerUsing op left =
+  if lv == 1 then Nothing else Just $ makeExpression op left
+  where
+    lv = value left
 
 makeExpression :: Operation -> Expression -> Expression -> Maybe Expression
 makeExpression op@Add left right = Just $ ArithmeticExpression left op right
@@ -69,17 +80,6 @@ makeExpression op@Divide left right
   where
     lv = value left
     rv = value right
-
-combinerUsing :: Operation -> Expression -> Maybe (Expression -> Maybe Expression)
-combinerUsing op@Add left = Just $ makeExpression op left
-combinerUsing op@Subtract left =
-  if lv < 3 then Nothing else Just $ makeExpression op left
-  where
-    lv = value left
-combinerUsing op left =
-  if lv == 1 then Nothing else Just $ makeExpression op left
-  where
-    lv = value left
 
 findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
 findBest _ e1 Nothing = Just e1
