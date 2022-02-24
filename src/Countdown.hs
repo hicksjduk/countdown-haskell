@@ -104,7 +104,7 @@ data Priority = Low | High | Atomic deriving (Eq, Ord)
 class Prioritizable a where
   priority :: a -> Priority
 
-data Operation = Add | Subtract | Multiply | Divide deriving (Show, Enum)
+data Operation = Add | Subtract | Multiply | Divide deriving (Show, Enum, Eq)
 
 symbol :: Operation -> String
 symbol Add = "+"
@@ -119,14 +119,12 @@ eval Multiply a b = value a * value b
 eval Divide a b = value a `div` value b
 
 instance Prioritizable Operation where
-  priority Add = Low
-  priority Subtract = Low
-  priority _ = High
+  priority op 
+    | op `elem` [Add, Subtract] = Low
+    | otherwise = High
 
 commutative :: Operation -> Bool
-commutative Add = True
-commutative Multiply = True
-commutative _ = False
+commutative op = op `elem` [Add, Multiply]
 
 data Expression = NumberExpression Int | ArithmeticExpression Expression Operation Expression
 
