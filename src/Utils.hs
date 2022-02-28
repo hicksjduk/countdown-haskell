@@ -27,10 +27,8 @@ foldParallel chunkSize fold combine xs = par lf $ combine lf rf
 -- Parameter 2 is the list.
 deleteAt :: Int -> [a] -> [a]
 deleteAt _ [] = []
-deleteAt i lst@(x : xs)
-  | i < 0 = lst
-  | i == 0 = xs
-  | otherwise = x : deleteAt (i - 1) xs
+deleteAt 0 (_:xs) = xs
+deleteAt i lst@(x : xs) = if i < 0 then lst else x : deleteAt (i - 1) xs
 
 -- |
 -- Gets the number of times the specified value occurs in the specified list.
