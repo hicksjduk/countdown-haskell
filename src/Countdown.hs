@@ -119,7 +119,7 @@ eval Multiply a b = value a * value b
 eval Divide a b = value a `div` value b
 
 instance Prioritizable Operation where
-  priority op 
+  priority op
     | op `elem` [Add, Subtract] = Low
     | otherwise = High
 

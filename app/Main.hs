@@ -3,9 +3,9 @@
 module Main where
 
 import Countdown
+import Data.Bifunctor
 import Data.Char
 import Data.List
-import Data.Bifunctor
 import System.Environment
 import System.Random
 import Utils
@@ -20,7 +20,7 @@ main = do
 argsToNumeric :: [String] -> Either String [Int]
 argsToNumeric [] = Left "Must specify at least one argument"
 argsToNumeric xs
-  | all (all isDigit) xs = Right $ map (read::String->Int) xs
+  | all (all isDigit) xs = Right $ map (read :: String -> Int) xs
   | otherwise = Left "All arguments must be non-negative integers"
 
 numericToNumbers :: RandomGen a => a -> [Int] -> Either String [Int]
@@ -55,11 +55,12 @@ validNumber n ns
   | n `mod` 25 /= 0 = False
   | otherwise = occurrences n ns == 1
 
-bigNumbers = map (*25) [1 .. 4]
-smallNumbers = concatMap (replicate 2) [1..10]
+bigNumbers = map (* 25) [1 .. 4]
+
+smallNumbers = concatMap (replicate 2) [1 .. 10]
 
 randomNumbers :: RandomGen a => a -> Int -> [Int]
-randomNumbers rand bigOnes = target : take bigOnes big ++ take (6-bigOnes) small
+randomNumbers rand bigOnes = target : take bigOnes big ++ take (6 - bigOnes) small
   where
     (target, r1) = randomR (100, 999) rand
     (big, r2) = randomFrom r1 bigNumbers
@@ -69,8 +70,8 @@ randomFrom :: RandomGen a => a -> [b] -> ([b], a)
 randomFrom rand [] = ([], rand)
 randomFrom rand xs@[x] = (xs, rand)
 randomFrom rand xs = (head right : res, r2)
-   where
-     indexRange = (0, length xs - 1)
-     (i, r1) = randomR indexRange rand
-     (left, right) = splitAt i xs
-     (res, r2) = randomFrom r1 (left ++ tail right)
+  where
+    indexRange = (0, length xs - 1)
+    (i, r1) = randomR indexRange rand
+    (left, right) = splitAt i xs
+    (res, r2) = randomFrom r1 (left ++ tail right)

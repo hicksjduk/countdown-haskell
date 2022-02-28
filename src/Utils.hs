@@ -27,7 +27,7 @@ foldParallel chunkSize fold combine xs = par lf $ combine lf rf
 -- Parameter 2 is the list.
 deleteAt :: Int -> [a] -> [a]
 deleteAt _ [] = []
-deleteAt 0 (_:xs) = xs
+deleteAt 0 (_ : xs) = xs
 deleteAt i lst@(x : xs) = if i < 0 then lst else x : deleteAt (i - 1) xs
 
 -- |
@@ -35,7 +35,7 @@ deleteAt i lst@(x : xs) = if i < 0 then lst else x : deleteAt (i - 1) xs
 -- Parameter 1 is the value.
 -- Parameter 2 is the list.
 occurrences :: Eq a => a -> [a] -> Int
-occurrences x = countIf (==x)
+occurrences x = countIf (== x)
 
 -- |
 -- Gets the number of items in the specified list that satisfy the supplied predicate.
@@ -45,7 +45,7 @@ countIf :: (a -> Bool) -> [a] -> Int
 countIf predicate xs = length $ filter predicate xs
 
 -- |
--- Gets whether the first list is a subset of the second one. List A is a subset of list B 
+-- Gets whether the first list is a subset of the second one. List A is a subset of list B
 -- if every distinct value in A occurs not more times in A than in B.
 -- Note that: (a) the order of elements is irrelevant; (b) if the two lists contain the
 -- same values they are both subsets of each other.
