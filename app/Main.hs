@@ -60,18 +60,16 @@ bigNumbers = map (* 25) [1 .. 4]
 smallNumbers = concatMap (replicate 2) [1 .. 10]
 
 randomNumbers :: RandomGen a => a -> Int -> [Int]
-randomNumbers rand bigOnes = target : take bigOnes big ++ take (6 - bigOnes) small
+randomNumbers rand bigOnes = target : map fst big ++ map fst small
   where
     (target, r1) = randomR (100, 999) rand
-    (big, r2) = randomFrom r1 bigNumbers
-    (small, _) = randomFrom r2 smallNumbers
+    big = take bigOnes $ randomise r1 bigNumbers
+    (_, r2) = if null big then (0, r1) else last big
+    small = take (6 - bigOnes) $ randomise r2 smallNumbers
 
-randomFrom :: RandomGen a => a -> [b] -> ([b], a)
-randomFrom rand [] = ([], rand)
-randomFrom rand xs@[x] = (xs, rand)
-randomFrom rand xs = (head right : res, r2)
+randomise :: RandomGen a => a -> [b] -> [(b, a)]
+randomise rand [] = []
+randomise rand [x] = [(x, rand)]
+randomise rand xs = (xs !! i, r1) : randomise r1 (deleteAt i xs)
   where
-    indexRange = (0, length xs - 1)
-    (i, r1) = randomR indexRange rand
-    (left, right) = splitAt i xs
-    (res, r2) = randomFrom r1 (left ++ tail right)
+    (i, r1) = randomR (0, length xs - 1) rand
