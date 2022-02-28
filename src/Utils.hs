@@ -9,7 +9,7 @@ import Data.List
 -- separately and in parallel, and the results are combined to produce an
 -- overall result.
 -- Parameter 1 is the chunk size to use.
--- Parameter 2 is the fold.
+-- Parameter 2 is the fold. Note that this must be able to be applied to an empty list.
 -- Parameter 3 is a function that combines the results of folding two chunks.
 -- Parameter 4 is the list.
 foldParallel :: Int -> ([a] -> b) -> (b -> b -> b) -> [a] -> b
