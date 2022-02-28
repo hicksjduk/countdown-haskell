@@ -25,12 +25,12 @@ foldParallel chunkSize fold combine xs = par lf $ combine lf rf
 -- If the index is not a valid index for the list, the whole list is returned.
 -- Parameter 1 is the index.
 -- Parameter 2 is the list.
-allExcept :: Int -> [a] -> [a]
-allExcept _ [] = []
-allExcept i lst@(x : xs)
+deleteAt :: Int -> [a] -> [a]
+deleteAt _ [] = []
+deleteAt i lst@(x : xs)
   | i < 0 = lst
   | i == 0 = xs
-  | otherwise = x : allExcept (i - 1) xs
+  | otherwise = x : deleteAt (i - 1) xs
 
 -- |
 -- Gets the number of times the specified value occurs in the specified list.

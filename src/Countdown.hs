@@ -28,7 +28,7 @@ permute xs = concatMap (`permuteAt` xs) uniqueIndices
     permuteAt n xs = map (x :) $ [] : permute others
       where
         x = xs !! n
-        others = allExcept n xs
+        others = deleteAt n xs
 
 expressions :: [Expression] -> [Expression]
 expressions [] = []
