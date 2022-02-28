@@ -64,7 +64,7 @@ randomNumbers rand bigOnes = target : map fst big ++ map fst small
   where
     (target, r1) = randomR (100, 999) rand
     big = take bigOnes $ randomise r1 bigNumbers
-    (_, r2) = if null big then (0, r1) else last big
+    r2 = if null big then r1 else snd $ last big
     small = take (6 - bigOnes) $ randomise r2 smallNumbers
 
 randomise :: RandomGen a => a -> [b] -> [(b, a)]
