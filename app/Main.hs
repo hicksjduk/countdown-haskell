@@ -63,10 +63,10 @@ randomNumbers :: RandomGen a => a -> Int -> [Int]
 randomNumbers rand bigOnes = target : map fst (big ++ small)
   where
     (target, r1) = randomR (100, 999) rand
-    big = take bigOnes $ randomise r1 bigNumbers
-    r2 = if null big then r1 else snd $ last big
-    small = take (6 - bigOnes) $ randomise r2 smallNumbers
-
+    small = take (6 - bigOnes) $ randomise r1 smallNumbers
+    r2 = snd $ last small
+    big = take bigOnes $ randomise r2 bigNumbers
+    
 randomise :: RandomGen a => a -> [b] -> [(b, a)]
 randomise rand [] = []
 randomise rand [x] = [(x, rand)]
