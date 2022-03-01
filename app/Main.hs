@@ -60,7 +60,7 @@ bigNumbers = map (* 25) [1 .. 4]
 smallNumbers = concatMap (replicate 2) [1 .. 10]
 
 randomNumbers :: RandomGen a => a -> Int -> [Int]
-randomNumbers rand bigOnes = target : map fst big ++ map fst small
+randomNumbers rand bigOnes = target : map fst (big ++ small)
   where
     (target, r1) = randomR (100, 999) rand
     big = take bigOnes $ randomise r1 bigNumbers
