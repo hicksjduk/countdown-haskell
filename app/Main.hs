@@ -68,7 +68,7 @@ randomNumbers rand bigOnes = target : map fst (big ++ small)
     big = take bigOnes $ randomise r2 bigNumbers
     
 randomise :: RandomGen a => a -> [b] -> [(b, a)]
-randomise rand [] = []
+randomise _ [] = []
 randomise rand [x] = [(x, rand)]
 randomise rand xs = (xs !! i, r1) : randomise r1 (deleteAt i xs)
   where
