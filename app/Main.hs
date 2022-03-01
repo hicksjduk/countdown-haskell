@@ -42,18 +42,12 @@ solveIt (target : numbers) = do
       $ solve target numbers
 
 validTarget :: Int -> Bool
-validTarget n = n >= 100 && n <= 999
+validTarget n = n >= fst targetRange && n <= snd targetRange
 
 validNumbers :: [Int] -> Bool
-validNumbers ns = all (`validNumber` ns) $ nub ns
+validNumbers ns = sort ns `isSubsequenceOf` (smallNumbers ++ bigNumbers)
 
-validNumber :: Int -> [Int] -> Bool
-validNumber n ns
-  | n < 1 = False
-  | n <= 10 = occurrences n ns <= 2
-  | n > 100 = False
-  | n `mod` 25 /= 0 = False
-  | otherwise = occurrences n ns == 1
+targetRange = (100, 999)
 
 bigNumbers = map (* 25) [1 .. 4]
 
@@ -62,7 +56,7 @@ smallNumbers = concatMap (replicate 2) [1 .. 10]
 randomNumbers :: RandomGen a => a -> Int -> [Int]
 randomNumbers rand bigOnes = target : map fst (big ++ small)
   where
-    (target, r1) = randomR (100, 999) rand
+    (target, r1) = randomR targetRange rand
     small = take (6 - bigOnes) $ randomise r1 smallNumbers
     r2 = snd $ last small
     big = take bigOnes $ randomise r2 bigNumbers
