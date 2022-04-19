@@ -41,13 +41,15 @@ expressions xs = concatMap (expressionsFrom . (`splitAt` xs)) [1 .. length xs - 
       where
         combiners = concatMap combinersUsing $ expressions leftOperands
 
-combinations :: [Expression -> Maybe Expression] -> Expression -> [Expression]
+type Combiner = Expression -> Maybe Expression
+
+combinations :: [Combiner] -> Expression -> [Expression]
 combinations xs right = mapMaybe ($ right) xs
 
-combinersUsing :: Expression -> [Expression -> Maybe Expression]
+combinersUsing :: Expression -> [Combiner]
 combinersUsing left = mapMaybe (`combinerUsing` left) [minBound :: Operation ..]
 
-combinerUsing :: Operation -> Expression -> Maybe (Expression -> Maybe Expression)
+combinerUsing :: Operation -> Expression -> Maybe Combiner
 combinerUsing op@Add left = Just $ makeExpression op left
 combinerUsing op@Subtract left =
   if lv < 3 then Nothing else Just $ makeExpression op left
