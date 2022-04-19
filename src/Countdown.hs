@@ -45,7 +45,7 @@ combinations :: [Expression -> Maybe Expression] -> Expression -> [Expression]
 combinations xs right = mapMaybe ($ right) xs
 
 combinersUsing :: Expression -> [Expression -> Maybe Expression]
-combinersUsing left = mapMaybe (`combinerUsing` left) [Add ..]
+combinersUsing left = mapMaybe (`combinerUsing` left) [minBound :: Operation ..]
 
 combinerUsing :: Operation -> Expression -> Maybe (Expression -> Maybe Expression)
 combinerUsing op@Add left = Just $ makeExpression op left
@@ -104,7 +104,7 @@ data Priority = Low | High | Atomic deriving (Eq, Ord)
 class Prioritizable a where
   priority :: a -> Priority
 
-data Operation = Add | Subtract | Multiply | Divide deriving (Show, Enum, Eq)
+data Operation = Add | Subtract | Multiply | Divide deriving (Show, Enum, Eq, Bounded)
 
 symbol :: Operation -> String
 symbol Add = "+"
