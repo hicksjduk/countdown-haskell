@@ -86,11 +86,13 @@ makeExpression op@Divide left right
 
 findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
 findBest _ e1 Nothing = Just e1
-findBest target e1 (Just e2) = Just $ maybe e1 (\c -> if c == LT then e1 else e2) $ comparison e1 e2
+findBest target e1 (Just e2) = Just $ maybe e1 mapBack $ comparison e1 e2
   where
     getters = [differenceFrom target, count, parenCount]
     comparers = map (compare `on`) getters
     comparison e1 e2 = find (/=EQ) $ map (($ e2).($ e1)) comparers
+    mapBack LT = e1
+    mapBack _ = e2
 
 differenceFrom :: Int -> Expression -> Int
 differenceFrom target expr = abs (target - value expr)
