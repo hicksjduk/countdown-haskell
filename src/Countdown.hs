@@ -26,15 +26,14 @@ permute xs = concatMap (`permuteAt` xs) uniqueIndices
   where
     uniqueIndices = nubBy ((==) `on` (xs!!)) $ take (length xs) [0 ..]
     permuteAt :: Eq a => Int -> [a] -> [[a]]
-    permuteAt n xs = map (x :) $ [] : permute others
+    permuteAt n xs = (xs !! n :) <$> [] : permute others
       where
-        x = xs !! n
         others = deleteAt n xs
 
 expressions :: [Expression] -> [Expression]
 expressions [] = []
 expressions [x] = [x]
-expressions xs = concatMap (expressionsFrom . (`splitAt` xs)) [1 .. length xs - 1]
+expressions xs = concatMap expressionsFrom $ (`splitAt` xs) <$> [1 .. length xs - 1]
   where
     expressionsFrom :: ([Expression], [Expression]) -> [Expression]
     expressionsFrom (leftOperands, rightOperands) =
@@ -89,8 +88,8 @@ findBest _ e1 Nothing = Just e1
 findBest target e1 (Just e2) = Just $ maybe e1 mapBack $ comparison e1 e2
   where
     getters = [differenceFrom target, count, parenCount]
-    comparers = map (compare `on`) getters
-    comparison e1 e2 = find (/=EQ) $ map (($ e2).($ e1)) comparers
+    comparers = (compare `on`) <$> getters
+    comparison e1 e2 = find (/=EQ) $ ($ e2) <$> ($ e1) <$> comparers
     mapBack LT = e1
     mapBack _ = e2
 
@@ -132,16 +131,16 @@ value (ArithmeticExpression left op right) = eval op left right
 
 count :: Expression -> Int
 count (NumberExpression _) = 1
-count (ArithmeticExpression left _ right) = sum [count left, count right]
+count (ArithmeticExpression left _ right) = sum $ count <$> [left, right]
 
 numbersUsed :: Expression -> [Int]
 numbersUsed (NumberExpression n) = [n]
-numbersUsed (ArithmeticExpression left _ right) = numbersUsed left ++ numbersUsed right
+numbersUsed (ArithmeticExpression left _ right) = concatMap numbersUsed [left, right]
 
 parenCount :: Expression -> Int
 parenCount (NumberExpression _) = 0
 parenCount e@(ArithmeticExpression left _ right) =
-  sum [countIf ($e) [leftParens, rightParens], parenCount left, parenCount right]
+  sum $ countIf ($e) [leftParens, rightParens] : map parenCount [left, right]
 
 instance Eq Expression where
   a == b = value a == value b
