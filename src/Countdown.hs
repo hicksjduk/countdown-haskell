@@ -2,7 +2,6 @@ module Countdown where
 
 import Data.List
 import Data.Maybe
-import Data.Function
 import Utils
 
 solve :: Int -> [Int] -> Maybe Expression
@@ -21,19 +20,20 @@ allExpressions xs = concatMap expressions $ permute xs
 
 permute :: Eq a => [a] -> [[a]]
 permute [] = []
-permute [x] = [[x]]
+permute xs@[_] = [xs]
 permute xs = concatMap (`permuteAt` xs) uniqueIndices
   where
-    uniqueIndices = nubBy ((==) `on` (xs!!)) $ take (length xs) [0 ..]
+    uniqueIndices = nubBy (\a b -> xs !! a == xs !! b) $ take (length xs) [0 ..]
     permuteAt :: Eq a => Int -> [a] -> [[a]]
-    permuteAt n xs = (xs !! n :) <$> [] : permute others
+    permuteAt n xs = map (x :) $ [] : permute others
       where
+        x = xs !! n
         others = deleteAt n xs
 
 expressions :: [Expression] -> [Expression]
 expressions [] = []
-expressions [x] = [x]
-expressions xs = concatMap expressionsFrom $ (`splitAt` xs) <$> [1 .. length xs - 1]
+expressions xs@[_] = xs
+expressions xs = concatMap (expressionsFrom . (`splitAt` xs)) [1 .. length xs - 1]
   where
     expressionsFrom :: ([Expression], [Expression]) -> [Expression]
     expressionsFrom (leftOperands, rightOperands) =
@@ -85,13 +85,18 @@ makeExpression op@Divide left right
 
 findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
 findBest _ e1 Nothing = Just e1
-findBest target e1 (Just e2) = Just $ maybe e1 mapBack $ comparison e1 e2
+findBest target e1 (Just e2) = Just $ if null better then e1 else head better
   where
     getters = [differenceFrom target, count, parenCount]
-    comparers = (compare `on`) <$> getters
-    comparison e1 e2 = find (/=EQ) $ ($ e2) <$> ($ e1) <$> comparers
-    mapBack LT = e1
-    mapBack _ = e2
+    better = mapMaybe (\g -> lesserBy g e1 e2) getters
+
+lesserBy :: Ord b => (a -> b) -> a -> a -> Maybe a
+lesserBy f x y
+  | fx == fy = Nothing
+  | otherwise = Just $ if fx < fy then x else y
+  where
+    fx = f x
+    fy = f y
 
 differenceFrom :: Int -> Expression -> Int
 differenceFrom target expr = abs (target - value expr)
@@ -116,9 +121,7 @@ eval Multiply a b = value a * value b
 eval Divide a b = value a `div` value b
 
 instance Prioritizable Operation where
-  priority op
-    | op `elem` [Add, Subtract] = Low
-    | otherwise = High
+  priority op = if op `elem` [Add, Subtract] then Low else High
 
 commutative :: Operation -> Bool
 commutative op = op `elem` [Add, Multiply]
@@ -131,7 +134,7 @@ value (ArithmeticExpression left op right) = eval op left right
 
 count :: Expression -> Int
 count (NumberExpression _) = 1
-count (ArithmeticExpression left _ right) = sum $ count <$> [left, right]
+count (ArithmeticExpression left _ right) = sum $ map count [left, right]
 
 numbersUsed :: Expression -> [Int]
 numbersUsed (NumberExpression n) = [n]
@@ -140,7 +143,7 @@ numbersUsed (ArithmeticExpression left _ right) = concatMap numbersUsed [left, r
 parenCount :: Expression -> Int
 parenCount (NumberExpression _) = 0
 parenCount e@(ArithmeticExpression left _ right) =
-  sum $ countIf ($e) [leftParens, rightParens] : map parenCount [left, right]
+  countIf ($e) [leftParens, rightParens] + sum (map parenCount [left, right])
 
 instance Eq Expression where
   a == b = value a == value b
