@@ -99,13 +99,13 @@ data Priority = Low | High | Atomic deriving (Eq, Ord)
 class Prioritizable a where
   priority :: a -> Priority
 
-data Operation = Add | Subtract | Multiply | Divide deriving (Show, Enum, Eq, Bounded)
+data Operation = Add | Subtract | Multiply | Divide deriving (Enum, Eq, Bounded)
 
-symbol :: Operation -> String
-symbol Add = "+"
-symbol Subtract = "-"
-symbol Multiply = "*"
-symbol Divide = "/"
+instance Show Operation where
+  show Add = "+"
+  show Subtract = "-"
+  show Multiply = "*"
+  show Divide = "/"
 
 eval :: Operation -> Expression -> Expression -> Int
 eval Add a b = value a + value b
@@ -148,7 +148,7 @@ instance Prioritizable Expression where
 instance Show Expression where
   show (NumberExpression n) = show n
   show e@(ArithmeticExpression left op right) =
-    unwords [parensLeft $ show left, symbol op, parensRight $ show right]
+    unwords [parensLeft $ show left, show op, parensRight $ show right]
     where
       parensLeft = parensIf $ leftParens e
       parensRight = parensIf $ rightParens e
