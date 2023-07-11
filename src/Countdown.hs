@@ -85,18 +85,11 @@ makeExpression op@Divide left right
 
 findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
 findBest _ e1 Nothing = Just e1
-findBest target e1 (Just e2) = Just $ if null better then e1 else head better
+findBest target e1 (Just e2) = Just $ if ordering == LT then e1 else e2
   where
     getters = [differenceFrom target, count, parenCount]
-    better = mapMaybe (\g -> lesserBy g e1 e2) getters
-
-lesserBy :: Ord b => (a -> b) -> a -> a -> Maybe a
-lesserBy f x y
-  | fx == fy = Nothing
-  | otherwise = Just $ if fx < fy then x else y
-  where
-    fx = f x
-    fy = f y
+    ordering = foldMap (compareBy e1 e2) getters
+    compareBy x y f = compare (f x) (f y)
 
 differenceFrom :: Int -> Expression -> Int
 differenceFrom target expr = abs (target - value expr)
