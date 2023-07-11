@@ -114,7 +114,9 @@ eval Multiply a b = value a * value b
 eval Divide a b = value a `div` value b
 
 instance Prioritizable Operation where
-  priority op = if op `elem` [Add, Subtract] then Low else High
+  priority Add = Low
+  priority Subtract = Low
+  priority _ = High
 
 commutative :: Operation -> Bool
 commutative op = op `elem` [Add, Multiply]
