@@ -150,28 +150,25 @@ instance Prioritizable Expression where
 instance Show Expression where
   show (NumberExpression n) = show n
   show e@(ArithmeticExpression left op right) =
-    unwords [parensLeft $ show left, show op, parensRight $ show right]
+    unwords $ intersperse (show op) operands
     where
-      parensLeft = parensIf $ leftParens e
-      parensRight = parensIf $ rightParens e
+      operands = zipWith parensIf [left, right] $ [leftParens, rightParens] <*> [e]
 
 leftParens :: Expression -> Bool
 leftParens (NumberExpression _) = False
-leftParens (ArithmeticExpression left op _) = lPriority < oPriority
-  where
-    lPriority = priority left
-    oPriority = priority op
+leftParens (ArithmeticExpression left op _) = parens left op Nothing
 
 rightParens :: Expression -> Bool
 rightParens (NumberExpression _) = False
-rightParens (ArithmeticExpression _ op right)
-  | rPriority > oPriority = False
-  | rPriority < oPriority = True
-  | otherwise = (not . commutative) op
-  where
-    rPriority = priority right
-    oPriority = priority op
+rightParens (ArithmeticExpression _ op right) = parens right op $ Just $ commutative op
 
-parensIf :: Bool -> String -> String
-parensIf False s = s
-parensIf True s = intercalate s ["(", ")"]
+parens :: Expression -> Operation -> Maybe Bool -> Bool
+parens operand op opCommutative
+  | operandPriority == opPriority = fromMaybe False opCommutative
+  | otherwise = operandPriority < opPriority
+  where
+    operandPriority = priority operand
+    opPriority = priority op
+
+parensIf :: (Show a) => a -> Bool -> String
+parensIf e withParens = if withParens then intercalate (show e) ["(", ")"] else show e
