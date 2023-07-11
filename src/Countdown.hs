@@ -119,7 +119,7 @@ instance Prioritizable Operation where
   priority _ = High
 
 commutative :: Operation -> Bool
-commutative op = op `elem` [Add, Multiply]
+commutative = (`elem` [Add, Multiply])
 
 data Expression = NumberExpression Int | ArithmeticExpression Expression Operation Expression
 
