@@ -137,8 +137,10 @@ numbersUsed (ArithmeticExpression left _ right) = concatMap numbersUsed [left, r
 
 parenCount :: Expression -> Int
 parenCount (NumberExpression _) = 0
-parenCount e@(ArithmeticExpression left _ right) =
-  countIf ($e) [leftParens, rightParens] + sum (map parenCount [left, right])
+parenCount e@(ArithmeticExpression left _ right) = parens + nestedParens
+  where
+    parens = length $ elemIndices True $ [leftParens, rightParens] <*> [e]
+    nestedParens = sum (map parenCount [left, right])
 
 instance Eq Expression where
   a == b = value a == value b
