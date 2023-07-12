@@ -49,9 +49,9 @@ validNumbers ns = sort ns `isSubsequenceOf` (smallNumbers ++ bigNumbers)
 
 targetRange = (100, 999)
 
-bigNumbers = map (* 25) [1 .. 4]
+bigNumbers = [(* 25)] <*> [1 .. 4]
 
-smallNumbers = concatMap (replicate 2) [1 .. 10]
+smallNumbers = concat $ [replicate 2] <*> [1 .. 10]
 
 randomNumbers :: RandomGen a => a -> Int -> [Int]
 randomNumbers rand bigOnes = target : map fst (big ++ small)
