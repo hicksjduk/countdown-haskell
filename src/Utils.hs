@@ -26,28 +26,19 @@ foldParallel chunkSize fold combine xs = par lf $ combine lf rf
 -- Parameter 1 is the index.
 -- Parameter 2 is the list.
 deleteAt :: Int -> [a] -> [a]
-deleteAt i xs = (xs!!) <$> delete i (take (length xs) [0..])
-
--- |
--- Gets the number of times the specified value occurs in the specified list.
--- Parameter 1 is the value.
--- Parameter 2 is the list.
-occurrences :: Eq a => a -> [a] -> Int
-occurrences x = countIf (== x)
-
--- |
--- Gets the number of items in the specified list that satisfy the supplied predicate.
--- Parameter 1 is the predicate.
--- Parameter 2 is the list.
-countIf :: (a -> Bool) -> [a] -> Int
-countIf predicate xs = length $ filter predicate xs
+deleteAt i xs = case splitAt i xs of
+  (_, []) -> xs
+  (ys, _:zs) -> if i < 0 then xs else ys ++ zs
 
 -- |
 -- Gets whether the first list is a subset of the second one. List A is a subset of list B
 -- if every distinct value in A occurs not more times in A than in B.
 -- Note that: (a) the order of elements is irrelevant; (b) if the two lists contain the
--- same values they are both subsets of each other.
+-- same values they are both subsets of each other; (c) the empty list is a subset of itself
+-- and any other list.
 -- Parameter 1 is the candidate subset.
 -- Parameter 2 is the candidate superset.
-isSubsetOf :: Ord a => [a] -> [a] -> Bool
-a `isSubsetOf` b = sort a `isSubsequenceOf` sort b
+isSubsetOf :: Eq a => [a] -> [a] -> Bool
+[] `isSubsetOf` _ = True
+(x:xs) `isSubsetOf` ys = length zs /= length ys && xs `isSubsetOf` zs
+  where zs = delete x ys
