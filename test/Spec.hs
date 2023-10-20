@@ -4,7 +4,6 @@ import Data.Maybe
 import Test.Hspec
 import Utils
 
-main :: IO ()
 main = do
   testExact 834 [10, 9, 8, 7, 6, 5] 5
   testExact 378 [50, 7, 4, 3, 2, 1] 3
