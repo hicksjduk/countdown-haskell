@@ -49,24 +49,23 @@ validNumbers ns = sort ns `isSubsequenceOf` (smallNumbers ++ bigNumbers)
 
 targetRange = (100, 999)
 
-bigNumbers = [(* 25)] <*> [1 .. 4]
+bigNumbers = map (* 25) [1 .. 4]
 
-smallNumbers = concat $ [replicate 2] <*> [1 .. 10]
+smallNumbers = concatMap (replicate 2) [1 .. 10]
 
 randomNumbers :: RandomGen a => a -> Int -> [Int]
-randomNumbers rand bigOnes = target : map fst (big ++ small)
+randomNumbers rand bigOnes = target : take 6 (take bigOnes big ++ small)
   where
     (target, r1) = randomR targetRange rand
-    small = take (6 - bigOnes) $ randomise r1 smallNumbers
-    r2 = snd $ last small
-    big = take bigOnes $ randomise r2 bigNumbers
+    (big, r2) = randomise r1 bigNumbers
+    (small, _) = randomise r2 smallNumbers
     
-randomise :: RandomGen a => a -> [b] -> [(b, a)]
-randomise _ [] = []
-randomise rand [x] = [(x, rand)]
-randomise rand xs = (xs !! i, r1) : randomise r1 (deleteAt i xs)
+randomise :: RandomGen a => a -> [b] -> ([b], a)
+randomise rand [x] = ([x], rand)
+randomise rand xs = (xs !! i : ns, r2)
   where
     (i, r1) = randomR (0, length xs - 1) rand
+    (ns, r2) = randomise r1 $ deleteAt i xs
 
 deleteAt :: Int -> [a] -> [a]
 deleteAt i xs = case splitAt i xs of
