@@ -19,16 +19,9 @@ allExpressions :: [Expression] -> [Expression]
 allExpressions xs = concatMap expressions $ permute xs
 
 permute :: Eq a => [a] -> [[a]]
-permute [] = []
-permute xs@[_] = [xs]
-permute xs = concatMap (`permuteAt` xs) uniqueIndices
+permute xs = concatMap permuteUsing $ nub xs
   where
-    uniqueIndices = nubBy (\a b -> xs !! a == xs !! b) $ take (length xs) [0 ..]
-    permuteAt :: Eq a => Int -> [a] -> [[a]]
-    permuteAt n xs = map (x :) $ [] : permute others
-      where
-        x = xs !! n
-        others = deleteAt n xs
+    permuteUsing x = [x] : map (x:) (permute $ delete x xs)
 
 expressions :: [Expression] -> [Expression]
 expressions [] = []
