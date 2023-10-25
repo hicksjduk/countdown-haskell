@@ -2,7 +2,7 @@ module Countdown where
 
 import Data.List
 import Data.Maybe
-import Utils
+import Control.Parallel
 
 solve :: Int -> [Int] -> Maybe Expression
 solve target xs = foldParallel chunkSize folder combiner filteredExprs
@@ -167,3 +167,20 @@ parens operand op opCommutative
 
 parensIf :: (Show a) => a -> Bool -> String
 parensIf e withParens = if withParens then intercalate (show e) ["(", ")"] else show e
+
+-- |
+-- Performs the specified fold on the supplied list, using parallel processing
+-- for performance. The list is split into chunks, each of which is folded
+-- separately and in parallel, and the results are combined to produce an
+-- overall result.
+-- Parameter 1 is the chunk size to use.
+-- Parameter 2 is the fold. Note that this must be able to be applied to an empty list.
+-- Parameter 3 is a function that combines the results of folding two chunks.
+-- Parameter 4 is the list.
+foldParallel :: Int -> ([a] -> b) -> (b -> b -> b) -> [a] -> b
+foldParallel _ fold _ [] = fold []
+foldParallel chunkSize fold combine xs = par lf $ combine lf rf
+  where
+    (left, right) = splitAt chunkSize xs
+    lf = fold left
+    rf = foldParallel chunkSize fold combine right

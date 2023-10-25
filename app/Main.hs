@@ -8,7 +8,7 @@ import Data.Char
 import Data.List
 import System.Environment
 import System.Random
-import Utils
+
 
 main = do
   args <- getArgs
@@ -67,3 +67,8 @@ randomise rand [x] = [(x, rand)]
 randomise rand xs = (xs !! i, r1) : randomise r1 (deleteAt i xs)
   where
     (i, r1) = randomR (0, length xs - 1) rand
+
+deleteAt :: Int -> [a] -> [a]
+deleteAt i xs = case splitAt i xs of
+  (_, []) -> xs
+  (ys, _:zs) -> if i < 0 then xs else ys ++ zs

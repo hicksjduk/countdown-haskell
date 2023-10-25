@@ -2,7 +2,6 @@ import Countdown
 import Data.List
 import Data.Maybe
 import Test.Hspec
-import Utils
 
 main = do
   testExact 834 [10, 9, 8, 7, 6, 5] 5
@@ -55,3 +54,8 @@ testNoSolution target numbers = hspec $ do
     let solution = solve target numbers
     it "No solution found" $ do
       solution `shouldSatisfy` isNothing
+
+isSubsetOf :: Eq a => [a] -> [a] -> Bool
+[] `isSubsetOf` _ = True
+(x:xs) `isSubsetOf` ys = length zs /= length ys && xs `isSubsetOf` zs
+  where zs = delete x ys

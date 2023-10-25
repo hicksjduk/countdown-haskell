@@ -76,10 +76,7 @@ and must be in the range 100 to 999 inclusive. The remainder (of which there is 
 
 The code of the application follows the standard structure of a `stack` application:
 
-* The main application code is in [the `src` directory](src). It is split into two
-files: [`Countdown.hs`](src/Countdown.hs) contains the code specific to the implementation of a Countdown
-solver, and [`Utils.hs`](src/Utils.hs) contains some utility functions that are used by that implementation,
-as well as in other parts of the codebase.
+* The main application code is in [the `src` directory](src).
 * The code necessary to run the solver from the command line is in [the `app` directory](app).
 * The unit tests are in [the `test` directory](test). They depend on [the `hspec` package](https://hspec.github.io/).
 
