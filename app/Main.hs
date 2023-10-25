@@ -41,7 +41,7 @@ solveIt (target : numbers) = do
       $ solve target numbers
 
 validTarget :: Int -> Bool
-validTarget n = n >= fst targetRange && n <= snd targetRange
+validTarget n = let (min, max) = targetRange in n >= min && n <= max
 
 validNumbers :: [Int] -> Bool
 validNumbers ns = sort ns `isSubsequenceOf` (smallNumbers ++ bigNumbers)
@@ -60,7 +60,7 @@ randomNumbers rand bigOnes = target : take 6 (take bigOnes big ++ small)
     (small, _) = randomise r2 smallNumbers
     
 randomise :: RandomGen a => a -> [b] -> ([b], a)
-randomise rand [x] = ([x], rand)
+randomise rand xs@[_] = (xs, rand)
 randomise rand xs = (xs !! i : ns, r2)
   where
     (i, r1) = randomR (0, length xs - 1) rand
