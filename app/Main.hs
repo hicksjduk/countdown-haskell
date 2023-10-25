@@ -3,7 +3,6 @@
 module Main where
 
 import Countdown
-import Data.Bifunctor
 import Data.Char
 import Data.List
 import System.Environment
