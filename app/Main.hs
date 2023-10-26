@@ -28,16 +28,17 @@ numericToNumbers rand [x]
   | otherwise = Right $ randomNumbers rand x
 numericToNumbers _ nums@(target : numbers)
   | (not . validTarget) target = Left "Target must be in the range 100 to 999 inclusive"
-  | (not . validNumbers) numbers = Left "Numbers must include up to 2 each of the numbers 1 to 10 and up to 1 each of 25, 50, 75 and 100"
+  | (not . validNumbers) numbers = Left $ unwords 
+        ["Numbers must include up to 2 each of the numbers 1 to 10",
+         "and up to 1 each of 25, 50, 75 and 100"]
   | otherwise = Right nums
 
 solveIt :: [Int] -> IO ()
 solveIt (target : numbers) = do
-  putStrLn $ unwords ["Solving with target number:", show target, "and source numbers:", show numbers]
+  putStrLn $ unwords ["Solving with target number:", show target, 
+    "and source numbers:", show numbers]
   putStrLn $
-    maybe
-      "No solution found"
-      (\e -> unwords [show e, "=", show $ value e])
+    maybe "No solution found" (\e -> unwords [show e, "=", show $ value e])
       $ solve target numbers
 
 validTarget :: Int -> Bool
@@ -56,15 +57,16 @@ randomNumbers :: RandomGen a => a -> Int -> [Int]
 randomNumbers rand bigOnes = target : take 6 (take bigOnes big ++ small)
   where
     (target, r1) = randomR targetRange rand
-    (big, r2) = randomise r1 bigNumbers
-    (small, _) = randomise r2 smallNumbers
+    (big, r2) = shuffle r1 bigNumbers
+    (small, _) = shuffle r2 smallNumbers
     
-randomise :: RandomGen a => a -> [b] -> ([b], a)
-randomise rand xs@[_] = (xs, rand)
-randomise rand xs = (xs !! i : ns, r2)
+shuffle :: RandomGen a => a -> [b] -> ([b], a)
+shuffle rand xs
+  | length xs < 2 = (xs, rand)
+  | otherwise = (xs !! i : ns, r2)
   where
     (i, r1) = randomR (0, length xs - 1) rand
-    (ns, r2) = randomise r1 $ deleteAt i xs
+    (ns, r2) = shuffle r1 $ deleteAt i xs
 
 deleteAt :: Int -> [a] -> [a]
 deleteAt i xs = case splitAt i xs of
