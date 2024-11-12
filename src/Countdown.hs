@@ -43,36 +43,20 @@ combinersUsing :: Expression -> [Combiner]
 combinersUsing left = mapMaybe (`combinerUsing` left) [minBound :: Operation ..]
 
 combinerUsing :: Operation -> Expression -> Maybe Combiner
-combinerUsing op@Add left = Just $ makeExpression op left
-combinerUsing op@Subtract left =
-  if lv < 3 then Nothing else Just $ makeExpression op left
+combinerUsing op left = if validForOperand op then Just $ makeExpression op left else Nothing
   where
-    lv = value left
-combinerUsing op left =
-  if lv == 1 then Nothing else Just $ makeExpression op left
-  where
+    validForOperand Add = True
+    validForOperand Subtract = lv >= 3
+    validForOperand _ = lv /= 1
     lv = value left
 
 makeExpression :: Operation -> Expression -> Expression -> Maybe Expression
-makeExpression op@Add left right = Just $ ArithmeticExpression left op right
-makeExpression op@Subtract left right
-  | rv >= lv = Nothing
-  | rv * 2 == lv = Nothing
-  | otherwise = Just $ ArithmeticExpression left op right
+makeExpression op left right = if validForOperands op then Just $ ArithmeticExpression left op right else Nothing
   where
-    lv = value left
-    rv = value right
-makeExpression op@Multiply left right
-  | rv == 1 = Nothing
-  | otherwise = Just $ ArithmeticExpression left op right
-  where
-    rv = value right
-makeExpression op@Divide left right
-  | rv == 1 = Nothing
-  | lv `mod` rv /= 0 = Nothing
-  | rv ^ 2 == lv = Nothing
-  | otherwise = Just $ ArithmeticExpression left op right
-  where
+    validForOperands Add = True
+    validForOperands Subtract = lv > rv && lv /= rv * 2
+    validForOperands Multiply = rv /= 1
+    validForOperands Divide = rv /= 1 && lv `mod` rv == 0 && lv /= rv ^ 2
     lv = value left
     rv = value right
 
