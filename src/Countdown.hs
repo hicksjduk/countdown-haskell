@@ -43,7 +43,7 @@ combinersUsing :: Expression -> [Combiner]
 combinersUsing left = mapMaybe (`combinerUsing` left) [minBound :: Operation ..]
 
 combinerUsing :: Operation -> Expression -> Maybe Combiner
-combinerUsing op left = if validForOperand op then Just $ makeExpression op left else Nothing
+combinerUsing op left = toMaybe (validForOperand op) $ makeExpression op left
   where
     validForOperand Add = True
     validForOperand Subtract = lv >= 3
@@ -51,7 +51,7 @@ combinerUsing op left = if validForOperand op then Just $ makeExpression op left
     lv = value left
 
 makeExpression :: Operation -> Expression -> Expression -> Maybe Expression
-makeExpression op left right = if validForOperands op then Just $ ArithmeticExpression left op right else Nothing
+makeExpression op left right = toMaybe (validForOperands op) $ ArithmeticExpression left op right
   where
     validForOperands Add = True
     validForOperands Subtract = lv > rv && lv /= rv * 2
@@ -59,6 +59,10 @@ makeExpression op left right = if validForOperands op then Just $ ArithmeticExpr
     validForOperands Divide = rv /= 1 && lv `mod` rv == 0 && lv /= rv ^ 2
     lv = value left
     rv = value right
+
+toMaybe :: Bool -> a -> Maybe a
+toMaybe False _ = Nothing
+toMaybe True a = Just a
 
 findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
 findBest _ e1 Nothing = Just e1
