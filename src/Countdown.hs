@@ -70,6 +70,7 @@ findBest target e1 (Just e2) = Just $ if ordering == LT then e1 else e2
   where
     getters = [differenceFrom target, count, parenCount]
     ordering = foldMap (compareBy e1 e2) getters
+    compareBy :: (Ord a) => t -> t -> (t -> a) -> Ordering
     compareBy x y f = compare (f x) (f y)
 
 differenceFrom :: Int -> Expression -> Int
