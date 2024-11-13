@@ -81,6 +81,9 @@ data Priority = Low | High | Atomic deriving (Eq, Ord)
 class Prioritizable a where
   priority :: a -> Priority
 
+comparePriority :: (Prioritizable a, Prioritizable b) => a -> b -> Ordering
+comparePriority a b = compare (priority a) (priority b)
+
 data Operation = Add | Subtract | Multiply | Divide deriving (Enum, Eq, Bounded)
 
 instance Show Operation where
@@ -141,14 +144,14 @@ instance Show Expression where
 leftParens :: Expression -> Bool
 leftParens (NumberExpression _) = False
 leftParens (ArithmeticExpression left op _) =
-  case compare (priority left) (priority op) of
+  case comparePriority left op of
     LT -> True
     _ -> False
 
 rightParens :: Expression -> Bool
 rightParens (NumberExpression _) = False
 rightParens (ArithmeticExpression _ op right) =
-  case compare (priority right) (priority op) of
+  case comparePriority right op of
     LT -> True
     EQ -> not $ commutative op
     GT -> False
