@@ -19,9 +19,9 @@ allExpressions :: [Expression] -> [Expression]
 allExpressions xs = concatMap expressions $ permute xs
 
 permute :: Eq a => [a] -> [[a]]
-permute xs = concatMap permuteUsing $ nub xs
-  where
-    permuteUsing x = [x] : map (x:) (permute $ delete x xs)
+permute xs = 
+  let permuteUsing x = [x] : map (x:) (permute $ delete x xs)
+  in concatMap permuteUsing $ nub xs
 
 expressions :: [Expression] -> [Expression]
 expressions [] = []
