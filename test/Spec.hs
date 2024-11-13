@@ -22,16 +22,16 @@ testExact target numbers expectedCount = hspec $ do
     let e = fromJust solution
     it "Matches target" $ do
       value e `shouldBe` target
-    checkCount expectedCount e
+    checkNumberCount expectedCount e
     checkNumbersUsed numbers e
 
 checkSolutionFound :: Maybe Expression -> SpecWith (Arg Expectation)
 checkSolutionFound solution = it "Solution found" $ do
   solution `shouldSatisfy` isJust
 
-checkCount :: Int -> Expression -> SpecWith (Arg Expectation)
-checkCount expected expression = it (unwords ["Uses", show expected, "number(s)"]) $ do
-  count expression `shouldBe` expected
+checkNumberCount :: Int -> Expression -> SpecWith (Arg Expectation)
+checkNumberCount expected expression = it (unwords ["Uses", show expected, "number(s)"]) $ do
+  numberCount expression `shouldBe` expected
 
 checkNumbersUsed :: [Int] -> Expression -> SpecWith (Arg Expectation)
 checkNumbersUsed numbers expression = it "Only uses some or all source numbers" $ do
@@ -45,7 +45,7 @@ testNotExact target numbers expectedAnswer expectedCount = hspec $ do
     let e = fromJust solution
     it (unwords ["Value of answer is", show expectedAnswer]) $ do
       value e `shouldBe` expectedAnswer
-    checkCount expectedCount e
+    checkNumberCount expectedCount e
     checkNumbersUsed numbers e
 
 testNoSolution :: Int -> [Int] -> IO ()

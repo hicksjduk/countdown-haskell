@@ -68,7 +68,7 @@ findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
 findBest _ e1 Nothing = Just e1
 findBest target e1 (Just e2) = Just $ if ordering == LT then e1 else e2
   where
-    getters = [differenceFrom target, count, parenCount]
+    getters = [differenceFrom target, numberCount, parenCount]
     ordering = foldMap (compareBy e1 e2) getters
     compareBy :: (Ord a) => t -> t -> (t -> a) -> Ordering
     compareBy x y f = compare (f x) (f y)
@@ -109,9 +109,9 @@ value :: Expression -> Int
 value (NumberExpression n) = n
 value (ArithmeticExpression left op right) = eval op left right
 
-count :: Expression -> Int
-count (NumberExpression _) = 1
-count (ArithmeticExpression left _ right) = sum $ map count [left, right]
+numberCount :: Expression -> Int
+numberCount (NumberExpression _) = 1
+numberCount (ArithmeticExpression left _ right) = sum $ map numberCount [left, right]
 
 numbersUsed :: Expression -> [Int]
 numbersUsed (NumberExpression n) = [n]
@@ -119,10 +119,10 @@ numbersUsed (ArithmeticExpression left _ right) = concatMap numbersUsed [left, r
 
 parenCount :: Expression -> Int
 parenCount (NumberExpression _) = 0
-parenCount e@(ArithmeticExpression left _ right) = parens + nestedParens
+parenCount e@(ArithmeticExpression left _ right) = sum $ parens : nestedParens
   where
-    parens = length $ elemIndices True $ [leftParens, rightParens] <*> [e]
-    nestedParens = sum (map parenCount [left, right])
+    parens = length $ filter id $ map ($ e) [leftParens, rightParens]
+    nestedParens = map parenCount [left, right]
 
 instance Eq Expression where
   a == b = value a == value b
@@ -136,26 +136,26 @@ instance Show Expression where
   show e@(ArithmeticExpression left op right) =
     unwords $ intersperse (show op) operands
     where
-      operands = zipWith parensIf [left, right] $ [leftParens, rightParens] <*> [e]
+      operands = zipWith parensIf [left, right] $ map ($ e) [leftParens, rightParens]
 
 leftParens :: Expression -> Bool
 leftParens (NumberExpression _) = False
-leftParens (ArithmeticExpression left op _) = parens left op Nothing
+leftParens (ArithmeticExpression left op _) =
+  case compare (priority left) (priority op) of
+    LT -> True
+    _ -> False
 
 rightParens :: Expression -> Bool
 rightParens (NumberExpression _) = False
-rightParens (ArithmeticExpression _ op right) = parens right op $ Just $ commutative op
-
-parens :: Expression -> Operation -> Maybe Bool -> Bool
-parens operand op opCommutative
-  | operandPriority == opPriority = fromMaybe False opCommutative
-  | otherwise = operandPriority < opPriority
-  where
-    operandPriority = priority operand
-    opPriority = priority op
+rightParens (ArithmeticExpression _ op right) =
+  case compare (priority right) (priority op) of
+    LT -> True
+    EQ -> not $ commutative op
+    GT -> False
 
 parensIf :: (Show a) => a -> Bool -> String
-parensIf e withParens = if withParens then intercalate (show e) ["(", ")"] else show e
+parensIf e False = show e
+parensIf e True = intercalate (show e) ["(", ")"]
 
 -- |
 -- Performs the specified fold on the supplied list, using parallel processing
