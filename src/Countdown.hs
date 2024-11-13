@@ -27,12 +27,12 @@ expressions :: [Expression] -> [Expression]
 expressions [] = []
 expressions xs@[_] = xs
 expressions xs = concatMap (expressionsFrom . (`splitAt` xs)) [1 .. length xs - 1]
-  where
-    expressionsFrom :: ([Expression], [Expression]) -> [Expression]
-    expressionsFrom (leftOperands, rightOperands) =
-      concatMap (combinations combiners) $ expressions rightOperands
-      where
-        combiners = concatMap combinersUsing $ expressions leftOperands
+
+expressionsFrom :: ([Expression], [Expression]) -> [Expression]
+expressionsFrom (leftOperands, rightOperands) =
+  let combiners = concatMap combinersUsing $ expressions leftOperands
+  in concatMap (combinations combiners) $ expressions rightOperands
+    
 
 type Combiner = Expression -> Maybe Expression
 
