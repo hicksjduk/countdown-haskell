@@ -92,11 +92,11 @@ instance Show Operation where
   show Multiply = "*"
   show Divide = "/"
 
-eval :: Operation -> Expression -> Expression -> Int
-eval Add a b = value a + value b
-eval Subtract a b = value a - value b
-eval Multiply a b = value a * value b
-eval Divide a b = value a `div` value b
+eval :: Operation -> Int -> Int -> Int
+eval Add = (+)
+eval Subtract = (-)
+eval Multiply = (*)
+eval Divide = div
 
 instance Prioritizable Operation where
   priority Add = Low
@@ -110,7 +110,7 @@ data Expression = NumberExpression Int | ArithmeticExpression Expression Operati
 
 value :: Expression -> Int
 value (NumberExpression n) = n
-value (ArithmeticExpression left op right) = eval op left right
+value (ArithmeticExpression left op right) = eval op (value left) (value right)
 
 numberCount :: Expression -> Int
 numberCount (NumberExpression _) = 1
