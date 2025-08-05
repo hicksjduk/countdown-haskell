@@ -69,8 +69,8 @@ findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
 findBest _ e1 Nothing = Just e1
 findBest target e1 (Just e2) = Just $ if comp e1 e2 == LT then e1 else e2
   where
-    getters = [differenceFrom target, numberCount, parenCount]
-    comp = foldMap (compare `on`) getters
+    criteria = [differenceFrom target, numberCount, parenCount]
+    comp = foldMap (compare `on`) criteria
 
 differenceFrom :: Int -> Expression -> Int
 differenceFrom target expr = abs (target - value expr)
