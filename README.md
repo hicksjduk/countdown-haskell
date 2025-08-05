@@ -28,7 +28,7 @@ with the best answer they can.
 * Each player in turn declares the value of the answer they wish to submit.
 * Starting with the player(s) whose declaration
 is closest to the target, the players' answers are revealed. In order for a player's answer to be valid, their declared value must differ from the target number by not more than ten, and their answer must be a valid expression whose value is equal to their declared value.
-* The player or players who submit valid answers which are closest to the target number score points. 10 points are scored for an
+* The player or players who submit valid answers that are closest to the target number score points. 10 points are scored for an
 answer whose value is exactly equal to the target; 7 for one that differs from
 the target by between 1 and 5 inclusive; and 5 for one that differs from the target by between
 6 and 10 inclusive. If no player submits a valid answer, nobody scores any points.
@@ -39,7 +39,7 @@ This solver attempts to find the best possible solution for the given target and
 source numbers. What constitutes the best solution employs additional criteria
 besides the one used on the show (closer to the target number):
 
-* If two solutions differ from the target number by the same amount, one is considered
+* If two solutions differ from the target number by the same amount, one is considered to
 be better if it uses fewer source numbers.
 * If two solutions differ from the target number by the same amount and use the same
 number of source numbers, one is considered to be better if it requires fewer pairs
@@ -57,19 +57,19 @@ directory:
 
 * `stack build` to build the application.
 * `stack test` to build the application and run the unit tests.
-* `stack exec countdown-exe [args]` to run the application. Note that this command will not build the application, and will fail if the application has not first been built.
+* `stack run [args]` to run the application.
 
 ## Command-line interface
 
 When running the application, at least one command line argument must be specified.
-All arguments must be entirely numeric, and the following additional constraints
+Every argument must be a number, and the following additional constraints
 apply:
 
 * If there is only one argument, this indicates that the target and source numbers should be generated randomly. The argument specifies the number of big source numbers to be used, and must be a number in the range 0 to 4 inclusive.
 * If the number of arguments is more than one, this indicates that the source and target numbers are as specified by the arguments. The first specifies the target number,
 and must be in the range 100 to 999 inclusive. The remainder (of which there is no requirement for there to be six) specify the source numbers, each of which must conform to the following constraints:
    * Each source number must be either in the range 1 to 10 inclusive, or 25, 50, 75 or 100.
-   * A source number in the range 1 to 10 cannot appear more than twice among the source numbers.
+   * A source number less than 25 cannot appear more than twice among the source numbers.
    * A source number greater than 10 cannot appear more than once among the source numbers.
 
 ## Code structure

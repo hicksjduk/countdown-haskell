@@ -3,6 +3,7 @@ module Countdown where
 import Data.List
 import Data.Maybe
 import Control.Parallel
+import Data.Function
 
 solve :: Int -> [Int] -> Maybe Expression
 solve target xs = foldParallel chunkSize folder combiner filteredExprs
@@ -66,12 +67,10 @@ toMaybe True a = Just a
 
 findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
 findBest _ e1 Nothing = Just e1
-findBest target e1 (Just e2) = Just $ if ordering == LT then e1 else e2
+findBest target e1 (Just e2) = Just $ if comp e1 e2 == LT then e1 else e2
   where
     getters = [differenceFrom target, numberCount, parenCount]
-    ordering = foldMap (compareBy e1 e2) getters
-    compareBy :: (Ord a) => t -> t -> (t -> a) -> Ordering
-    compareBy x y f = compare (f x) (f y)
+    comp = foldMap (compare `on`) getters
 
 differenceFrom :: Int -> Expression -> Int
 differenceFrom target expr = abs (target - value expr)
