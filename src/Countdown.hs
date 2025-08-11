@@ -67,7 +67,7 @@ toMaybe True a = Just a
 
 findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
 findBest _ e1 Nothing = Just e1
-findBest target e1 (Just e2) = Just $ if comp e1 e2 == LT then e1 else e2
+findBest target e1 m@(Just e2) = if comp e1 e2 == LT then Just e1 else m
   where
     criteria = [differenceFrom target, numberCount, parenCount]
     comp = foldMap (compare `on`) criteria
