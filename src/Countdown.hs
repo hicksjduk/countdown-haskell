@@ -12,6 +12,7 @@ solve target xs = foldParallel chunkSize folder combiner filteredExprs
     folder = foldr (findBest target) Nothing
     combiner :: Maybe Expression -> Maybe Expression -> Maybe Expression
     combiner Nothing m2 = m2
+    combiner m1 Nothing = m1
     combiner (Just e1) m2 = findBest target e1 m2
     exprs = allExpressions $ map NumberExpression xs
     filteredExprs = filter ((<= 10) . differenceFrom target) exprs
