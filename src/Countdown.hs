@@ -31,8 +31,7 @@ expressionsFrom :: ([Expression], [Expression]) -> [Expression]
 expressionsFrom (leftOperands, rightOperands) =
   let combiners = concatMap combinersUsing $ expressions leftOperands
   in concatMap (combinations combiners) $ expressions rightOperands
-    
-
+  
 type Combiner = Expression -> Maybe Expression
 
 combinations :: [Combiner] -> Expression -> [Expression]
