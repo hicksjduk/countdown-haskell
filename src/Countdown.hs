@@ -153,19 +153,22 @@ parensIf :: (Show a) => a -> Bool -> String
 parensIf e False = show e
 parensIf e True = intercalate (show e) ["(", ")"]
 
-data ExpressionMonoid = WithoutExpression | WithExpression Int Expression
+data ExpressionMonoid = WithoutExpression | WithExpression Int Expression deriving (Eq)
+
+instance Ord ExpressionMonoid where
+  compare WithoutExpression WithoutExpression = EQ
+  compare WithoutExpression _ = GT
+  compare _ WithoutExpression = LT
+  compare (WithExpression target e1) (WithExpression _ e2) = comp e1 e2
+    where
+      criteria = [differenceFrom target, numberCount, parenCount]
+      comp = foldMap (compare `on`) criteria
 
 instance Monoid ExpressionMonoid where
   mempty = WithoutExpression
 
 instance Semigroup ExpressionMonoid where  
-  WithoutExpression <> m = m
-  m <> WithoutExpression = m
-  m1@(WithExpression target e1) <> m2@(WithExpression _ e2) = 
-      if comp e1 e2 == GT then m2 else m1
-    where
-      criteria = [differenceFrom target, numberCount, parenCount]
-      comp = foldMap (compare `on`) criteria
+  (<>) = min
 
 mconcatParallel :: (Monoid m) => Int -> [m] -> m
 mconcatParallel _ [] = mempty
