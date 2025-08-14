@@ -7,10 +7,7 @@ import Data.Function
 import Data.Monoid
 
 solve :: Int -> [Int] -> Maybe Expression
-solve target xs = 
-  case mconcatParallel chunkSize exprMonoids of
-    WithoutExpression -> Nothing
-    WithExpression _ e -> Just e
+solve target xs = maybeFrom $ mconcatParallel chunkSize exprMonoids
   where
     chunkSize = 100
     exprs = allExpressions $ map NumberExpression xs
@@ -169,6 +166,10 @@ instance Monoid ExpressionMonoid where
 
 instance Semigroup ExpressionMonoid where  
   (<>) = min
+
+maybeFrom :: ExpressionMonoid -> Maybe Expression
+maybeFrom WithoutExpression = Nothing
+maybeFrom (WithExpression _ e) = Just e
 
 mconcatParallel :: (Monoid m) => Int -> [m] -> m
 mconcatParallel _ [] = mempty
