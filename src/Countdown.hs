@@ -4,18 +4,18 @@ import Data.List
 import Data.Maybe
 import Control.Parallel
 import Data.Function
+import Data.Monoid
 
 solve :: Int -> [Int] -> Maybe Expression
-solve target xs = foldParallel chunkSize folder combiner filteredExprs
+solve target xs = 
+  case mconcatParallel chunkSize exprMonoids of
+    WithoutExpression -> Nothing
+    WithExpression _ e -> Just e
   where
     chunkSize = 100
-    folder = foldr (findBest target) Nothing
-    combiner :: Maybe Expression -> Maybe Expression -> Maybe Expression
-    combiner Nothing m2 = m2
-    combiner m1 Nothing = m1
-    combiner (Just e1) m2 = findBest target e1 m2
     exprs = allExpressions $ map NumberExpression xs
     filteredExprs = filter ((<= 10) . differenceFrom target) exprs
+    exprMonoids = map (WithExpression target) filteredExprs
 
 allExpressions :: [Expression] -> [Expression]
 allExpressions xs = concatMap expressions $ permute xs
@@ -65,13 +65,6 @@ makeExpression op left right = toMaybe (validForOperands op) $ ArithmeticExpress
 toMaybe :: Bool -> a -> Maybe a
 toMaybe False _ = Nothing
 toMaybe True a = Just a
-
-findBest :: Int -> Expression -> Maybe Expression -> Maybe Expression
-findBest _ e1 Nothing = Just e1
-findBest target e1 m@(Just e2) = if comp e1 e2 == LT then Just e1 else m
-  where
-    criteria = [differenceFrom target, numberCount, parenCount]
-    comp = foldMap (compare `on`) criteria
 
 differenceFrom :: Int -> Expression -> Int
 differenceFrom target expr = abs (target - value expr)
@@ -160,19 +153,24 @@ parensIf :: (Show a) => a -> Bool -> String
 parensIf e False = show e
 parensIf e True = intercalate (show e) ["(", ")"]
 
--- |
--- Performs the specified fold on the supplied list, using parallel processing
--- for performance. The list is split into chunks, each of which is folded
--- separately and in parallel, and the results are combined to produce an
--- overall result.
--- Parameter 1 is the chunk size to use.
--- Parameter 2 is the fold. Note that this must be able to be applied to an empty list.
--- Parameter 3 is a function that combines the results of folding two chunks.
--- Parameter 4 is the list.
-foldParallel :: Int -> ([a] -> b) -> (b -> b -> b) -> [a] -> b
-foldParallel _ fold _ [] = fold []
-foldParallel chunkSize fold combine xs = par lf $ combine lf rf
+data ExpressionMonoid = WithoutExpression | WithExpression Int Expression
+
+instance Monoid ExpressionMonoid where
+  mempty = WithoutExpression
+
+instance Semigroup ExpressionMonoid where  
+  WithoutExpression <> m = m
+  m <> WithoutExpression = m
+  m1@(WithExpression target e1) <> m2@(WithExpression _ e2) = 
+      if comp e1 e2 == GT then m2 else m1
+    where
+      criteria = [differenceFrom target, numberCount, parenCount]
+      comp = foldMap (compare `on`) criteria
+
+mconcatParallel :: (Monoid m) => Int -> [m] -> m
+mconcatParallel _ [] = mempty
+mconcatParallel chunkSize xs = par m1 $ m1 <> m2
   where
     (left, right) = splitAt chunkSize xs
-    lf = fold left
-    rf = foldParallel chunkSize fold combine right
+    m1 = mconcat left
+    m2 = mconcatParallel chunkSize right
