@@ -171,9 +171,9 @@ maybeFrom WithoutExpression = Nothing
 maybeFrom (WithExpression _ e) = Just e
 
 mconcatParallel :: (Monoid m) => Int -> [m] -> m
-mconcatParallel _ [] = mempty
-mconcatParallel chunkSize xs = par m1 $ m1 <> m2
-  where
-    (left, right) = splitAt chunkSize xs
-    m1 = mconcat left
-    m2 = mconcatParallel chunkSize right
+mconcatParallel chunkSize xs = case splitAt chunkSize xs of
+  (left, []) -> mconcat left
+  (left, right) -> let
+      mcl = mconcat left
+      mcr = mconcatParallel chunkSize right
+    in par mcl $ mcl <> mcr
