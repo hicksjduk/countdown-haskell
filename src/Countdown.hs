@@ -172,8 +172,6 @@ maybeFrom (WithExpression _ e) = Just e
 
 mconcatParallel :: (Monoid m) => Int -> [m] -> m
 mconcatParallel chunkSize xs = case splitAt chunkSize xs of
-  (left, []) -> mconcat left
-  (left, right) -> let
-      mcl = mconcat left
-      mcr = mconcatParallel chunkSize right
-    in par mcl $ mcl <> mcr
+  (_, []) -> mconcat xs
+  (chunk, rest) -> let mc = mconcat chunk
+    in par mc $ mc <> mconcatParallel chunkSize rest
