@@ -149,7 +149,7 @@ parensIf :: (Show a) => a -> Bool -> String
 parensIf e False = show e
 parensIf e True = intercalate (show e) ["(", ")"]
 
-data ExpressionMonoid = WithoutExpression | WithExpression Int Expression deriving (Eq)
+data ExpressionMonoid = WithoutExpression | WithExpression Int Expression deriving Eq
 
 instance Ord ExpressionMonoid where
   compare WithoutExpression WithoutExpression = EQ
