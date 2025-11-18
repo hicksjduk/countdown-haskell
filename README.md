@@ -21,7 +21,7 @@ one instance each of 25, 50, 75 and 100.
 The game can be played by any number of players, although on the standard version of the show there are only two. The procedure for a round of the numbers game is:
 * One player specifies how many big numbers should
 be selected (between 0 and 4 inclusive).
-* Six source numbers are selected, including the specified number of big numbers.
+* Six source numbers are selected at random, including the specified number of big numbers.
 * A target number is randomly generated.
 * The players have thirty seconds to come up
 with the best answer they can.
