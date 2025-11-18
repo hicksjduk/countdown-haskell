@@ -89,7 +89,10 @@ permutations where not all the numbers are used.
 * For each permutation, make all the expressions that can be used by combining the
 numbers in the permutation, in the specified order, with the permitted arithmetic operators,
 and parentheses as needed to vary the order of evaluation.
-* From all the expressions made using all the permutations, find the best solution, if
-any solutions exist. This step is performed using a parallel fold, where the list of expressions is split into chunks which are folded separately and in parallel, and the results of folding each chunk are then combined together to find the overall result.
+* Filter all the expressions made using all the permutations, to exclude all those which differ
+from the target number by more than 10.
+* From the filtered list of expressions, if it is not empty, find the best solution. 
+This step is performed using a parallel fold, where the list of expressions is split into chunks which are folded 
+separately and in parallel, and the results of folding each chunk are then combined together to find the overall result.
 
 The root of the solver algorithm is the `solve` function, which takes two parameters: an `Int` specifying the target number and a list of `Int` specifying the source numbers. It returns a value of type `Maybe Expression`, which is `Nothing` to denote that no solution could be found, and `Just e` to denote that `e` is the best possible solution.
