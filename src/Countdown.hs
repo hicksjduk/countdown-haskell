@@ -7,7 +7,7 @@ import Data.Function
 import Data.Monoid
 
 solve :: Int -> [Int] -> Maybe Expression
-solve target xs = maybeFrom $ mconcatParallel chunkSize exprMonoids
+solve target xs = toMaybe $ mconcatParallel chunkSize exprMonoids
   where
     chunkSize = 100
     exprs = allExpressions $ map NumberExpression xs
@@ -41,7 +41,7 @@ combinersUsing :: Expression -> [Combiner]
 combinersUsing left = mapMaybe (`combinerUsing` left) [minBound :: Operation ..]
 
 combinerUsing :: Operation -> Expression -> Maybe Combiner
-combinerUsing op left = toMaybe (validForOperand op) $ makeExpression op left
+combinerUsing op left = justIf (validForOperand op) $ makeExpression op left
   where
     validForOperand Add = True
     validForOperand Subtract = lv >= 3
@@ -49,7 +49,7 @@ combinerUsing op left = toMaybe (validForOperand op) $ makeExpression op left
     lv = value left
 
 makeExpression :: Operation -> Expression -> Expression -> Maybe Expression
-makeExpression op left right = toMaybe (validForOperands op) $ ArithmeticExpression left op right
+makeExpression op left right = justIf (validForOperands op) $ ArithmeticExpression left op right
   where
     validForOperands Add = True
     validForOperands Subtract = lv > rv && lv /= rv * 2
@@ -58,9 +58,9 @@ makeExpression op left right = toMaybe (validForOperands op) $ ArithmeticExpress
     lv = value left
     rv = value right
 
-toMaybe :: Bool -> a -> Maybe a
-toMaybe False _ = Nothing
-toMaybe True a = Just a
+justIf :: Bool -> a -> Maybe a
+justIf False _ = Nothing
+justIf True a = Just a
 
 differenceFrom :: Int -> Expression -> Int
 differenceFrom target expr = abs (target - value expr)
@@ -163,9 +163,9 @@ instance Monoid ExpressionMonoid where
 instance Semigroup ExpressionMonoid where  
   (<>) = min
 
-maybeFrom :: ExpressionMonoid -> Maybe Expression
-maybeFrom WithoutExpression = Nothing
-maybeFrom (WithExpression _ e) = Just e
+toMaybe :: ExpressionMonoid -> Maybe Expression
+toMaybe WithoutExpression = Nothing
+toMaybe (WithExpression _ e) = Just e
 
 mconcatParallel :: (Monoid m) => Int -> [m] -> m
 mconcatParallel chunkSize xs = case splitAt chunkSize xs of
